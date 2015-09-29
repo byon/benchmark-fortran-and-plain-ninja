@@ -5,7 +5,31 @@ configuration = debug
 output_directory = $builddir/$configuration
 fflags = /nologo /debug:full /Od /I$output_directory /stand:f08 /warn:all /module:$output_directory /Fd"$output_directory\vc140.pdb" /traceback /check:bounds /check:stack /threads /dbglibs /c /Qlocation,link,"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\\bin"
 
+ldflags = /INCREMENTAL:NO /NOLOGO /DEBUG /PDB:$output_directory/debug_info.pdb /SUBSYSTEM:CONSOLE /MACHINE:X64
+
 rule fc
-     command = ifort $fflags $in /object:$out
+    command = ifort $fflags $in /object:$out
+    description = Compiling $in
+
+rule flink
+    command = link /OUT:$out $ldflags $in
+    description = linking $out
+
+rule CUSTOM_COMMAND
+ command = $COMMAND
+ description = $DESC
+ restat = 1
+
+build PHONY: phony
 
 build $output_directory/generate.obj : fc src/generate.f90
+
+build $output_directory/generate.exe : flink $output_directory/generate.obj
+
+build all: phony $output_directory/generate.exe
+
+default all
+
+build clean: CUSTOM_COMMAND PHONY
+    COMMAND = "ninja" "-t" "clean"
+    description = "Cleaning"
