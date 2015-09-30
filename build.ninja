@@ -22,9 +22,15 @@ rule CUSTOM_COMMAND
 
 build PHONY: phony
 
-build $output_directory/generate.obj : fc src/generate.f90
+build $output_directory/file_system.obj : fc src/file_system.f90
+build $output_directory/generate.obj : fc src/generate.f90 | $output_directory/file_system.obj
 
-build $output_directory/generate.exe : flink $output_directory/generate.obj
+build $output_directory/generate.exe : flink $output_directory/generate.obj $output_directory/file_system.obj
+
+build test: CUSTOM_COMMAND all PHONY
+    # It is just silly to use hard coded path ...but this is a throwaway experiment
+    COMMAND = ruby c:\Users\byon\bin\cucumber -qc
+    description = executing feature tests
 
 build all: phony $output_directory/generate.exe
 
@@ -32,4 +38,4 @@ default all
 
 build clean: CUSTOM_COMMAND PHONY
     COMMAND = "ninja" "-t" "clean"
-    description = "Cleaning"
+    description = Cleaning
