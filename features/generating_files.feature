@@ -17,4 +17,10 @@ Feature: Generating files
     Then build configuration file requires ninja version "1.6.0"
 
   Scenario: Build configuration file defines build directory root
-    Then build configuration file set build directory root to "build"
+    Then build configuration file sets build directory root to "build"
+
+  Scenario: Build configuration file targets debug build
+    Then build configuration file sets configuration to "debug"
+
+  Scenario: Build configuration file defines output_directory
+    Then build configuration file sets output directory to "$builddir/$configuration"

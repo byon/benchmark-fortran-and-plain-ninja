@@ -26,6 +26,14 @@ Then(/^build configuration file requires ninja version "([^"]*)"$/) do |version|
   assert_equal(version, required_ninja_version)
 end
 
-Then(/^build configuration file set build directory root to "([^"]*)"$/) do |directory|
+Then(/^build configuration file sets build directory root to "([^"]*)"$/) do |directory|
   assert_equal(directory, build_directory_root)
+end
+
+Then(/^build configuration file sets configuration to "([^"]*)"$/) do |expected|
+  assert_equal(expected, build_configuration)
+end
+
+Then(/^build configuration file sets output directory to "([^"]*)"$/) do |directory|
+  assert_equal(directory, build_output_directory)
 end

@@ -8,15 +8,23 @@ module BuildConfiguration
     find_assignment('builddir', 'build directory root')
   end
 
+  def build_configuration
+    find_assignment('configuration', 'build configuration')
+  end
+
+  def build_output_directory
+    find_assignment('output_directory', 'output directory')
+  end
+
   private
 
   def find_assignment(id, name)
-    match = build_configuration.match(/#{id} = (.*)/)
+    match = read_build_configuration.match(/#{id} = (.*)/)
     assert match, "Could not find #{name}"
     return match.captures[0]
   end
 
-  def build_configuration
+  def read_build_configuration
     @configuration ||= build_configuration_file.read.gsub(/\r/, '')
   end
 
