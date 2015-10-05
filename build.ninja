@@ -37,5 +37,5 @@ build all: phony $output_directory/generate.exe
 default all
 
 build clean: CUSTOM_COMMAND PHONY
-    COMMAND = "ninja" "-t" "clean"
+    COMMAND = ninja -t clean
     description = Cleaning
