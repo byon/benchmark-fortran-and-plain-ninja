@@ -23,12 +23,9 @@ Then(/^file "([^"]*)" defines program "([^"]*)"$/) do |path, program|
 end
 
 Then(/^build configuration file requires ninja version "([^"]*)"$/) do |version|
-  text = File.open('generated/build.ninja').read
-  assert_match(/ninja_required_version = #{version}/, text,
-               'ninja version requirement is missing')
+  assert_equal(version, required_ninja_version)
 end
 
 Then(/^build configuration file set build directory root to "([^"]*)"$/) do |directory|
-  text = File.open('generated/build.ninja').read
-  assert_match(/builddir = #{directory}/, text, 'build root is missing')
+  assert_equal(directory, build_directory_root)
 end
