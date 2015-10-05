@@ -37,3 +37,7 @@ end
 Then(/^build configuration file sets output directory to "([^"]*)"$/) do |directory|
   assert_equal(directory, build_output_directory)
 end
+
+Then(/^compilation options include "(.*)"$/) do |option|
+  assert_includes(compilation_options, option)
+end

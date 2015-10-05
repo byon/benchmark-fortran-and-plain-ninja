@@ -24,3 +24,24 @@ Feature: Generating files
 
   Scenario: Build configuration file defines output_directory
     Then build configuration file sets output directory to "$builddir/$configuration"
+
+  Scenario Outline: Build configuration file defines debug compilation options
+    Then compilation options include "<option>"
+
+    Examples:
+    | option                                                                        |
+    | /nologo                                                                       |
+    | /debug:full                                                                   |
+    | /Od                                                                           |
+    | /I$output_directory                                                           |
+    | /stand:f08                                                                    |
+    | /warn:all                                                                     |
+    | /module:$output_directory                                                     |
+    | /Fd$output_directory\\vc140.pdb                                               |
+    | /traceback                                                                    |
+    | /check:bounds                                                                 |
+    | /check:stack                                                                  |
+    | /threads                                                                      |
+    | /dbglibs                                                                      |
+    | /c                                                                            |
+    | /Qlocation,link,"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin"   |

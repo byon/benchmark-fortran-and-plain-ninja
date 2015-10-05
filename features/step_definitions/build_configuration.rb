@@ -16,6 +16,10 @@ module BuildConfiguration
     find_assignment('output_directory', 'output directory')
   end
 
+  def compilation_options
+    find_assignment('fflags', 'compilation options').scan(/(?:[^\s"]|"[^"]*")+/)
+  end
+
   private
 
   def find_assignment(id, name)
