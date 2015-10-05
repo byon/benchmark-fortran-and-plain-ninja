@@ -9,3 +9,8 @@ Feature: Generating files
     Given any valid configuration
     When files are generated
     Then file "generated/main.f90" defines program "generate"
+
+  Scenario: Generating build configuration file
+    Given any valid configuration
+    When files are generated
+    Then there is a file "generated/build.ninja"
