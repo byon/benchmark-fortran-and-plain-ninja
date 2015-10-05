@@ -15,3 +15,6 @@ Feature: Generating files
 
   Scenario: Build configuration file defines minimum ninja version
     Then build configuration file requires ninja version "1.6.0"
+
+  Scenario: Build configuration file defines build directory root
+    Then build configuration file set build directory root to "build"

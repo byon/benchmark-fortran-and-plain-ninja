@@ -13,5 +13,6 @@ program generate
   if (.not. main%write_line('end program')) stop 1
   ninja = File('generated/build.ninja')
   if (.not. ninja%write_line('ninja_required_version = 1.6.0')) stop 1
+  if (.not. ninja%write_line('builddir = build')) stop 1
 
 end program generate
