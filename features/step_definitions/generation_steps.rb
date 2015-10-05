@@ -21,3 +21,9 @@ Then(/^file "([^"]*)" defines program "([^"]*)"$/) do |path, program|
   assert_match(/program #{program}/, text, 'program start is not defined')
   assert_match(/end program/, text, 'program end is not defined')
 end
+
+Then(/^build configuration file requires ninja version "([^"]*)"$/) do |version|
+  text = File.open('generated/build.ninja').read
+  assert_match(/ninja_required_version = #{version}/, text,
+               'ninja version requirement is missing')
+end

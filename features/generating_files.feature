@@ -12,3 +12,6 @@ Feature: Generating files
 
   Scenario: Generating build configuration file
     Then there is a file "generated/build.ninja"
+
+  Scenario: Build configuration file defines minimum ninja version
+    Then build configuration file requires ninja version "1.6.0"
