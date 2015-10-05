@@ -5,8 +5,11 @@ end
 
 When(/^files are generated$/) do
   generate
+end
+
+When(/^generated files are built$/) do
+  generate
   build
-  execute
 end
 
 Then(/^there is a file "([^"]*)"$/) do |file|

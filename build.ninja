@@ -29,7 +29,7 @@ build $output_directory/generate.exe : flink $output_directory/generate.obj $out
 
 build test: CUSTOM_COMMAND all PHONY
     # It is just silly to use hard coded path ...but this is a throwaway experiment
-    COMMAND = ruby c:\Users\byon\bin\cucumber -qc
+    COMMAND = ruby c:\Users\byon\bin\cucumber -qc --tags ~@wip
     description = executing feature tests
 
 build all: phony $output_directory/generate.exe

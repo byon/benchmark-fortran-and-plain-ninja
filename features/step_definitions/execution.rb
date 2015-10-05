@@ -6,6 +6,8 @@ module Execution
   end
 
   def build
+    ensure_build_directory_exists
+    expect_to_succeed(build_command, 'generated')
   end
 
   def execute
@@ -27,10 +29,18 @@ module Execution
     return ["build/debug/generate.exe"]
   end
 
+  def build_command
+    return ['ninja']
+  end
+
   def command_failed_message(command, status, output)
     separator = '-------------'
     "Command #{command} failed with error code #{status} and output\n" +
       "#{separator}\n#{output}#{separator}"
+  end
+
+  def ensure_build_directory_exists
+    FileUtils::mkdir_p 'generated/build'
   end
 end
 
