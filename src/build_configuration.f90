@@ -7,29 +7,41 @@ module build_configuration
   private
 
   type, public :: BuildConfiguration
+     character(len=:), allocatable :: path
    contains
-     ! @todo Currently using nopass to allow compiler warning
-     procedure, nopass :: generate
+     procedure :: generate
   end type
+
+  interface BuildConfiguration
+     module procedure :: construct_configuration
+  end interface
 
 contains
 
-  function generate() result(return_value)
+  function construct_configuration(directory) result(new_configuration)
+    type(BuildConfiguration) :: new_configuration
+    character(len=*) :: directory
+    new_configuration%path = directory // '/build.ninja'
+  end function
+
+  function generate(this) result(return_value)
+    class(BuildConfiguration) :: this
     logical :: return_value
     character(len=:), allocatable :: lines(:)
 
     lines = variable_declarations()
-    return_value = write_to_file(lines)
+    return_value = write_to_file(this%path, lines)
   end function
 
-  function write_to_file(lines) result(return_value)
+  function write_to_file(path, lines) result(return_value)
+    character(len=*) :: path
     character(len=:), allocatable :: lines(:)
     logical :: return_value
 
     type(File) :: ninja
     integer :: i
 
-    ninja = File('generated/build.ninja')
+    ninja = File(path)
     return_value = .false.
 
     do i = 1, size(lines)

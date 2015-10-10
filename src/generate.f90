@@ -8,12 +8,14 @@ program generate
 
   type(BuildConfiguration) configuration_file
   type(Program) :: main
+  character(len=*), parameter :: DIRECTORY = 'generated'
 
-  if (.not. create_directory('generated')) stop 1
+  if (.not. create_directory(DIRECTORY)) stop 1
 
-  main = Program('generated/main.f90', 'generate')
-
+  configuration_file = BuildConfiguration(DIRECTORY)
   if (.not. configuration_file%generate()) stop 1
+
+  main = Program(DIRECTORY // '/main.f90', 'generate')
   if (.not. main%generate()) stop 1
 
 contains
