@@ -27,9 +27,11 @@ contains
   function generate(this) result(return_value)
     class(BuildConfiguration) :: this
     logical :: return_value
-    character(len=:), allocatable :: lines(:)
+    character(len=:), allocatable :: declarations(:), rule_lines(:), lines(:)
 
-    lines = variable_declarations()
+    declarations = variable_declarations()
+    rule_lines = rules()
+    lines = [declarations, rule_lines]
     return_value = write_to_file(this%path, lines)
   end function
 
@@ -66,7 +68,8 @@ contains
          'builddir = build', &
          'configuration = debug', &
          'output_directory = $builddir/$configuration', &
-         'fflags = ' // compilation_options()/)
+         'fflags = ' // compilation_options(), &
+         ''/)
   end function
 
   function compilation_options() result(return_value)
@@ -86,6 +89,19 @@ contains
          '/dbglibs ' // &
          '/c ' // &
          '/Qlocation,link,"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin"'
+  end function compilation_options
+
+  function rules() result(return_value)
+    character(len=:), allocatable :: return_value(:)
+    return_value = compilation_rule()
+  end function
+
+  function compilation_rule() result(return_value)
+    character(len=:), allocatable :: return_value(:)
+    return_value = [ character(1024) :: &
+         'rule fc', &
+         '  command = ifort $fflags $in /object:$out', &
+         '']
   end function
 
 end module

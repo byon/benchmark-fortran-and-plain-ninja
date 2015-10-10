@@ -41,3 +41,8 @@ end
 Then(/^compilation options include "(.*)"$/) do |option|
   assert_includes(compilation_options, option)
 end
+
+Then(/^build configuration rule "([^"]*)" defines fortran compilation$/) do |rule|
+  command = build_rules(rule).get_declaration('command')
+  assert_equal(command, 'ifort $fflags $in /object:$out')
+end

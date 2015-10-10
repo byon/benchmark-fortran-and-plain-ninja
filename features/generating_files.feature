@@ -45,3 +45,6 @@ Feature: Generating files
     | /dbglibs                                                                      |
     | /c                                                                            |
     | /Qlocation,link,"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin"   |
+
+Scenario: Build configuration defines compilation rule
+  Then build configuration rule "fc" defines fortran compilation
