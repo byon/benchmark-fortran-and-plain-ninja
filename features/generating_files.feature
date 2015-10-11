@@ -51,3 +51,24 @@ Feature: Generating files
 
   Scenario: Build configuration is set to build program file
     Then build configuration is set to compile "main.f90"
+
+  Scenario Outline: Build configuration file defines debug compilation options
+    Then linking options include "<option>"
+
+    Examples:
+    | option                                |
+    | /INCREMENTAL:NO                       |
+    | /NOLOGO                               |
+    | /DEBUG                                |
+    | /PDB:$output_directory/debug_info.pdb |
+    | /SUBSYSTEM:CONSOLE                    |
+    | /MACHINE:X64                          |
+
+  Scenario: Build configuration defines linking rule
+    Then build configuration rule "flink" defines fortran linking
+
+  Scenario: Build configuration is set to build executable
+    Then build configuration is set to link "$output_directory/generated.exe"
+
+  Scenario: Linking executable will include the object files
+    Then build configuration will link object "$output_directory/main.obj"

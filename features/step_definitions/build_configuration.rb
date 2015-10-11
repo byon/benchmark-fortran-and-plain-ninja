@@ -20,6 +20,10 @@ module BuildConfiguration
     find_assignment('fflags', 'compilation options').scan(/(?:[^\s"]|"[^"]*")+/)
   end
 
+  def linking_options
+    find_assignment('ldflags', 'linking options').scan(/(?:[^\s"]|"[^"]*")+/)
+  end
+
   def build_rules(identifier)
     rules = find_rules
     assert(rules.key?(identifier), "there is no build rule '#{identifier}'")
@@ -30,6 +34,13 @@ module BuildConfiguration
     edges = find_edges
     result = edges.detect { |e| e.explicit_dependencies.include? input}
     assert(result, "Could not find build edge with input #{input}")
+    return result
+  end
+
+  def build_edges_by_target(target)
+    edges = find_edges
+    result = edges.detect { |e| e.outputs.include? target}
+    assert(result, "Could not find build edge with target #{target}")
     return result
   end
 

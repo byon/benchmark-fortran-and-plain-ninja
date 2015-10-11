@@ -13,7 +13,7 @@ When(/^generated files are built$/) do
 end
 
 Then(/^there is a file "([^"]*)"$/) do |file|
-  assert File.exists? file
+  assert File.exists?(file), "File '#{file} does not exist"
 end
 
 Then(/^file "([^"]*)" defines program "([^"]*)"$/) do |path, program|
@@ -56,4 +56,24 @@ end
 def expected_object_path(fortran_path)
   object_file = File.basename(fortran_path, File.extname(fortran_path)) + '.obj'
   '$output_directory/' + object_file
+end
+
+Then(/^linking options include "([^"]*)"$/) do |option|
+  assert_includes(linking_options, option)
+end
+
+Then(/^build configuration rule "([^"]*)" defines fortran linking$/) do |rule|
+  command = build_rules(rule).get_declaration('command')
+  assert_equal(command, 'link /OUT:$out $ldflags $in')
+end
+
+Then(/^build configuration is set to link "([^"]*)"$/) do |target|
+  edge = build_edges_by_target(target)
+  assert_equal('flink', edge.rule)
+  assert_equal([target], edge.outputs)
+end
+
+Then(/^build configuration will link object "([^"]*)"$/) do |object_file|
+  edge = build_edges_by_target('$output_directory/generated.exe')
+  assert_includes(edge.explicit_dependencies, object_file)
 end

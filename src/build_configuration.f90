@@ -67,6 +67,7 @@ contains
          'configuration = debug', &
          'output_directory = $builddir/$configuration', &
          'fflags = ' // compilation_options(), &
+         'ldflags = ' // linking_options(), &
          ''/)
   end function
 
@@ -89,9 +90,19 @@ contains
          '/Qlocation,link,"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin"'
   end function compilation_options
 
+  function linking_options() result(return_value)
+    character(:), allocatable :: return_value
+    return_value = '/INCREMENTAL:NO ' // &
+         '/NOLOGO ' // &
+         '/DEBUG ' // &
+         '/PDB:$output_directory/debug_info.pdb ' // &
+         '/SUBSYSTEM:CONSOLE ' // &
+         '/MACHINE:X64'
+  end function
+
   function rules() result(return_value)
     character(len=:), allocatable :: return_value(:)
-    return_value = compilation_rule()
+    return_value = [compilation_rule(), linking_rule()]
   end function
 
   function compilation_rule() result(return_value)
@@ -102,9 +113,19 @@ contains
          '']
   end function
 
+  function linking_rule() result(return_value)
+    character(len=:), allocatable :: return_value(:)
+    return_value = [ character(1024) :: &
+         'rule flink', &
+         '  command = link /OUT:$out $ldflags $in', &
+         '']
+  end function
+
   function build_edges() result (return_value)
     character(len=:), allocatable :: return_value(:)
-    return_value = [compilation_edge('main.f90', '')]
+    return_value = [compilation_edge('main.f90', ''), &
+         linking_edge('$output_directory/generated.exe', &
+                      '$output_directory/main.obj')]
   end function
 
   function compilation_edge(file, other_dependencies) result (return_value)
@@ -114,6 +135,13 @@ contains
     character(len=:), allocatable :: return_value
     return_value = build_edge(to_object_path(file), 'fc', &
          file // ' ' // other_dependencies)
+  end function
+
+  function linking_edge(file, dependencies) result (return_value)
+    character(len=*), intent(in)  :: file
+    character(len=*), intent(in)  :: dependencies
+    character(len=:), allocatable :: return_value
+    return_value = build_edge(file, 'flink', dependencies)
   end function
 
   function build_edge(outputs, rule, explicit_dependencies) &
