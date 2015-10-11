@@ -14,8 +14,6 @@ module Execution
     # @todo
   end
 
-  private
-
   def expect_to_succeed(command, execution_directory=".")
     Open3.popen2e(*command, :chdir=>execution_directory) do |_, output, thread|
       result = thread.value.exitstatus
@@ -23,6 +21,8 @@ module Execution
       assert_equal 0, result, message
     end
   end
+
+  private
 
   def generation_command
     # @todo pass the configuration

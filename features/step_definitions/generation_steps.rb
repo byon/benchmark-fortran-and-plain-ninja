@@ -77,3 +77,7 @@ Then(/^build configuration will link object "([^"]*)"$/) do |object_file|
   edge = build_edges_by_target('$output_directory/generated.exe')
   assert_includes(edge.explicit_dependencies, object_file)
 end
+
+Then(/^executing "([^"]*)" results in a success$/) do |path|
+  expect_to_succeed([path])
+end

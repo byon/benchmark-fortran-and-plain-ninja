@@ -9,3 +9,6 @@ Feature: Building generated files
 
   Scenario: Building executable
     Then there is a file "generated/build/debug/generated.exe"
+
+  Scenario: Executable can actually be executed
+    Then executing "generated/build/debug/generated.exe" results in a success
