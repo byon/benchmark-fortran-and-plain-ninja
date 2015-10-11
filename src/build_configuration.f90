@@ -27,13 +27,9 @@ contains
   function generate(this) result(return_value)
     class(BuildConfiguration) :: this
     logical :: return_value
-    character(len=:), allocatable :: &
-         declarations(:), rule_lines(:), build_edge_lines(:), lines(:)
+    character(len=:), allocatable :: lines(:)
 
-    declarations = variable_declarations()
-    rule_lines = rules()
-    build_edge_lines = build_edges()
-    lines = [declarations, rule_lines, build_edge_lines]
+    lines = [variable_declarations(), rules(), build_edges()]
     return_value = write_to_file(this%path, lines)
   end function
 
