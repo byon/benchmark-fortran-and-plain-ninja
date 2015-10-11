@@ -27,11 +27,13 @@ contains
   function generate(this) result(return_value)
     class(BuildConfiguration) :: this
     logical :: return_value
-    character(len=:), allocatable :: declarations(:), rule_lines(:), lines(:)
+    character(len=:), allocatable :: &
+         declarations(:), rule_lines(:), build_edge_lines(:), lines(:)
 
     declarations = variable_declarations()
     rule_lines = rules()
-    lines = [declarations, rule_lines]
+    build_edge_lines = build_edges()
+    lines = [declarations, rule_lines, build_edge_lines]
     return_value = write_to_file(this%path, lines)
   end function
 
@@ -104,4 +106,59 @@ contains
          '']
   end function
 
+  function build_edges() result (return_value)
+    character(len=:), allocatable :: return_value(:)
+    return_value = [compilation_edge('main.f90', '')]
+  end function
+
+  function compilation_edge(file, other_dependencies) result (return_value)
+    character(len=*), intent(in)  :: file
+    ! @todo it might be better to pass dependencies as array?
+    character(len=*), intent(in)  :: other_dependencies
+    character(len=:), allocatable :: return_value
+    return_value = build_edge(to_object_path(file), 'fc', &
+         file // ' ' // other_dependencies)
+  end function
+
+  function build_edge(outputs, rule, explicit_dependencies) &
+       result (return_value)
+    character(len=*), intent(in)  :: outputs
+    character(len=*), intent(in)  :: rule
+    character(len=*), intent(in)  :: explicit_dependencies
+    character(len=:), allocatable :: return_value
+    return_value = 'build ' // outputs // ' : ' // rule // ' ' // &
+         explicit_dependencies
+  end function
+
+  function to_object_path(file) result (return_value)
+    character(len=*), intent(in) :: file
+    character(len=:), allocatable :: return_value
+    character(len=:), allocatable :: object_file
+    object_file = replace_file_extension(extract_file_name_from_path(file))
+    return_value = '$output_directory/' // object_file
+  end function
+
+  function replace_file_extension(file) result (return_value)
+    character(len=*), intent(in) :: file
+    character(len=:), allocatable :: return_value
+    integer :: dot_index
+
+    dot_index = index(file, '.', back=.true.)
+    ! @todo improve error handling
+    if (dot_index == 0) stop 1
+    return_value = file(1:dot_index) // 'obj'
+  end function
+
+  function extract_file_name_from_path(path) result (return_value)
+    character(len=*), intent(in) :: path
+    character(len=:), allocatable :: return_value
+    integer :: last_separator
+
+    last_separator = index(path, '/', back=.true.)
+    if (last_separator == 0) then
+       return_value = path
+       return
+    end if
+    return_value = path(last_separator + 1:)
+  end function
 end module

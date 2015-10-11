@@ -48,3 +48,6 @@ Feature: Generating files
 
 Scenario: Build configuration defines compilation rule
   Then build configuration rule "fc" defines fortran compilation
+
+Scenario: Build configuration is set to build program file
+  Then build configuration is set to compile "main.f90"

@@ -1,4 +1,3 @@
-@wip
 Feature: Building generated files
 
   Scenario: Building main object file

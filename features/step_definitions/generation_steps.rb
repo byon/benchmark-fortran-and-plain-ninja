@@ -46,3 +46,14 @@ Then(/^build configuration rule "([^"]*)" defines fortran compilation$/) do |rul
   command = build_rules(rule).get_declaration('command')
   assert_equal(command, 'ifort $fflags $in /object:$out')
 end
+
+Then(/^build configuration is set to compile "([^"]*)"$/) do |target|
+  edge = build_edges_by_input(target)
+  assert_equal('fc', edge.rule)
+  assert_equal([expected_object_path(target)], edge.outputs)
+end
+
+def expected_object_path(fortran_path)
+  object_file = File.basename(fortran_path, File.extname(fortran_path)) + '.obj'
+  '$output_directory/' + object_file
+end
