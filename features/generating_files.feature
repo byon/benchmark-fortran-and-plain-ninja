@@ -46,8 +46,8 @@ Feature: Generating files
     | /c                                                                            |
     | /Qlocation,link,"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin"   |
 
-Scenario: Build configuration defines compilation rule
-  Then build configuration rule "fc" defines fortran compilation
+  Scenario: Build configuration defines compilation rule
+    Then build configuration rule "fc" defines fortran compilation
 
-Scenario: Build configuration is set to build program file
-  Then build configuration is set to compile "main.f90"
+  Scenario: Build configuration is set to build program file
+    Then build configuration is set to compile "main.f90"
