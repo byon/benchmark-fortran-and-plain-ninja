@@ -19,20 +19,30 @@ module Execution
   end
 
   def expect_to_succeed(command, execution_directory=".")
-    Open3.popen2e(*command, :chdir=>execution_directory) do |_, output, thread|
-      result = thread.value.exitstatus
-      all_output = output.read
-      message = command_failed_message(command[0], result, all_output)
-      assert_equal 0, result, message
-      return all_output
-    end
+    result, output = execute_command(command, execution_directory)
+    assert_equal 0, result, command_failed_message(command[0], result, output)
+    return output
+  end
+
+  def generate_and_store_result
+    @generation_result, @generation_output = execute_command(generation_command)
+  end
+
+  def generation_try_result
+    @generation_result
+  end
+
+  def generation_try_output
+    @generation_output
   end
 
   private
 
   def generation_command
-    # @todo pass the configuration
-    return ["build/debug/generate.exe"]
+    if @generated_files == nil
+      return ["build/debug/generate.exe"]
+    end
+    return ["build/debug/generate.exe", "#{@generated_files}"]
   end
 
   def build_command
@@ -41,6 +51,13 @@ module Execution
 
   def generated_exe_command
     return ["generated/build/debug/generated.exe"]
+  end
+
+  def execute_command(command, execution_directory=".")
+    Open3.popen2e(*command, :chdir=>execution_directory) do |_, output, thread|
+      result = thread.value.exitstatus
+      return [result, output.read]
+    end
   end
 
   def command_failed_message(command, status, output)

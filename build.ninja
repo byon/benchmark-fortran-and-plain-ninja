@@ -23,11 +23,12 @@ rule CUSTOM_COMMAND
 build PHONY: phony
 
 build $output_directory/build_configuration.obj : fc src/build_configuration.f90
+build $output_directory/configuration.obj : fc src/configuration.f90
 build $output_directory/file_system.obj : fc src/file_system.f90
 build $output_directory/fortran_program.obj : fc src/fortran_program.f90
-build $output_directory/generate.obj : fc src/generate.f90 | $output_directory/build_configuration.obj $output_directory/file_system.obj $output_directory/fortran_program.obj
+build $output_directory/generate.obj : fc src/generate.f90 | $output_directory/build_configuration.obj  $output_directory/configuration.obj $output_directory/file_system.obj $output_directory/fortran_program.obj
 
-build $output_directory/generate.exe : flink $output_directory/generate.obj $output_directory/file_system.obj $output_directory/build_configuration.obj $output_directory/fortran_program.obj
+build $output_directory/generate.exe : flink $output_directory/generate.obj $output_directory/file_system.obj $output_directory/build_configuration.obj $output_directory/configuration.obj $output_directory/fortran_program.obj
 
 build test: CUSTOM_COMMAND all PHONY
     # It is just silly to use hard coded path ...but this is a throwaway experiment
