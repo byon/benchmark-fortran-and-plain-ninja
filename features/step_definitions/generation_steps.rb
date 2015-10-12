@@ -81,3 +81,13 @@ end
 Then(/^executing "([^"]*)" results in a success$/) do |path|
   expect_to_succeed([path])
 end
+
+When(/^executable built from generated files is executed$/) do
+  generate
+  build
+  execute
+end
+
+Then(/^output contains print\-line from "([^"]*)"$/) do |expected|
+  assert_match(/#{expected}/, output_from_generated_exe)
+end

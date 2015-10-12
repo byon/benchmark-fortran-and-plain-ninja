@@ -87,6 +87,7 @@ contains
          '/threads ' // &
          '/dbglibs ' // &
          '/c ' // &
+         '/fpp ' // &
          '/Qlocation,link,"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin"'
   end function compilation_options
 

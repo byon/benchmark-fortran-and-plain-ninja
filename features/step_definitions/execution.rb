@@ -11,14 +11,20 @@ module Execution
   end
 
   def execute
-    # @todo
+    @output_from_generated_exe = expect_to_succeed(generated_exe_command)
+  end
+
+  def output_from_generated_exe
+    @output_from_generated_exe
   end
 
   def expect_to_succeed(command, execution_directory=".")
     Open3.popen2e(*command, :chdir=>execution_directory) do |_, output, thread|
       result = thread.value.exitstatus
-      message = command_failed_message(command[0], result, output.read)
+      all_output = output.read
+      message = command_failed_message(command[0], result, all_output)
       assert_equal 0, result, message
+      return all_output
     end
   end
 
@@ -31,6 +37,10 @@ module Execution
 
   def build_command
     return ['ninja']
+  end
+
+  def generated_exe_command
+    return ["generated/build/debug/generated.exe"]
   end
 
   def command_failed_message(command, status, output)

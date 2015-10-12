@@ -29,22 +29,23 @@ Feature: Generating files
     Then compilation options include "<option>"
 
     Examples:
-    | option                                                                        |
-    | /nologo                                                                       |
-    | /debug:full                                                                   |
-    | /Od                                                                           |
-    | /I$output_directory                                                           |
-    | /stand:f08                                                                    |
-    | /warn:all                                                                     |
-    | /module:$output_directory                                                     |
-    | /Fd$output_directory\\vc140.pdb                                               |
-    | /traceback                                                                    |
-    | /check:bounds                                                                 |
-    | /check:stack                                                                  |
-    | /threads                                                                      |
-    | /dbglibs                                                                      |
-    | /c                                                                            |
-    | /Qlocation,link,"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin"   |
+    | option                                                                           |
+    | /nologo                                                                          |
+    | /debug:full                                                                      |
+    | /Od                                                                              |
+    | /I$output_directory                                                              |
+    | /stand:f08                                                                       |
+    | /warn:all                                                                        |
+    | /module:$output_directory                                                        |
+    | /Fd$output_directory\\vc140.pdb                                                  |
+    | /traceback                                                                       |
+    | /check:bounds                                                                    |
+    | /check:stack                                                                     |
+    | /threads                                                                         |
+    | /dbglibs                                                                         |
+    | /c                                                                               |
+    | /fpp                                                                             |
+    | /Qlocation,link,"C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin" |
 
   Scenario: Build configuration defines compilation rule
     Then build configuration rule "fc" defines fortran compilation
