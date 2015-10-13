@@ -33,7 +33,7 @@ contains
 
     return_value = .false.
     main = File(this%target_file)
-    if (.not. main%write_line('program generate')) return
+    if (.not. main%write_line('program ' // this%name)) return
     if (.not. main%write_line('write (*, "(A)") __FILE__')) return
     if (.not. main%write_line('end program')) return
 
