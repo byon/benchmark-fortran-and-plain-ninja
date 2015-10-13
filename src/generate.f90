@@ -8,19 +8,18 @@ program generate
   implicit none
 
   type(BuildConfiguration) :: configuration_file
-  type(Options) :: configuration_options
+  type(Options) :: the_options
   type(Program) :: main
-  character(len=*), parameter :: DIRECTORY = 'generated'
 
-  configuration_options = Options()
-  if (.not. configuration_options%validate()) stop 1
+  the_options = construct_options('generated', 'generate')
+  if (.not. the_options%validate()) stop 1
 
-  if (.not. create_directory(DIRECTORY)) stop 1
+  if (.not. create_directory(the_options%target_directory)) stop 1
 
-  configuration_file = BuildConfiguration(DIRECTORY)
+  configuration_file = BuildConfiguration(the_options%target_directory)
   if (.not. configuration_file%generate()) stop 1
 
-  main = Program(DIRECTORY // '/main.f90', 'generate')
+  main = Program(the_options)
   if (.not. main%generate()) stop 1
 
 end program generate

@@ -5,6 +5,8 @@ module configuration
   private
 
   type, public :: Options
+     character(len=:), allocatable :: target_directory
+     character(len=:), allocatable :: program_name
      integer :: file_count
    contains
      procedure :: validate
@@ -12,13 +14,20 @@ module configuration
 
   interface Options
      module procedure :: construct_options
-  end interface
+  end interface Options
+
+  public :: construct_options
 
 contains
 
-  function construct_options() result(new_configuration)
+  function construct_options(target_directory, program_name) &
+       result(new_configuration)
     type(Options) :: new_configuration
+    character(len=*) :: target_directory
+    character(len=*) :: program_name
     new_configuration%file_count = get_integer_argument_at(1)
+    new_configuration%target_directory = target_directory
+    new_configuration%program_name = program_name
   end function
 
   function get_integer_argument_at(index) result(return_value)

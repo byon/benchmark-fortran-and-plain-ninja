@@ -1,5 +1,6 @@
 module fortran_program
   use file_system
+  use configuration
 
   implicit none
 
@@ -18,12 +19,12 @@ module fortran_program
 
 contains
 
-  function construct_program(target_file, name) result(new_program)
+  function construct_program(the_options) result(new_program)
     type(Program) :: new_program
-    character(len=*), intent(in) :: target_file, name
+    type(Options), intent(in) :: the_options
 
-    new_program%target_file = target_file
-    new_program%name = name
+    new_program%target_file = the_options%target_directory // '/main.f90'
+    new_program%name = the_options%program_name
   end function
 
   function generate(this) result(return_value)
