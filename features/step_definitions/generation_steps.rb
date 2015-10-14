@@ -53,6 +53,12 @@ Then(/^build configuration is set to compile "([^"]*)"$/) do |target|
   assert_equal([expected_object_path(target)], edge.outputs)
 end
 
+Then(/^"([^"]*)" is dependent on "([^"]*)"$/) do |dependant, source|
+  edge = build_edges_by_input(dependant)
+  assert_equal('fc', edge.rule)
+  assert_equal([expected_object_path(source)], edge.implicit_dependencies)
+end
+
 def expected_object_path(fortran_path)
   object_file = File.basename(fortran_path, File.extname(fortran_path)) + '.obj'
   '$output_directory/' + object_file

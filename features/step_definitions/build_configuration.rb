@@ -143,7 +143,11 @@ module BuildConfiguration
   end
 
   def parse_implicit_dependencies(edge_line)
-    match = edge_line.match(/\|\s*(.+)\s*\|\|/)
+    if edge_line.include? '||'
+      match = edge_line.match(/\|\s*(.+)\s*\|\|/)
+    else
+      match = edge_line.match(/\|\s*(.+)\s*/)
+    end
     match ? match.captures[0].split : []
   end
 

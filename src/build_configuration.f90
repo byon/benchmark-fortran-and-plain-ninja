@@ -124,19 +124,24 @@ contains
 
   function build_edges() result (return_value)
     character(len=:), allocatable :: return_value(:)
-    return_value = [compilation_edge('main.f90', ''), &
-         compilation_edge('A_1.f90', ''), &
+    return_value = [compilation_edge('main.f90', &
+         implicit='$output_directory/A_1.obj'), &
+         compilation_edge('A_1.f90'), &
          linking_edge('$output_directory/generated.exe', &
                       '$output_directory/main.obj')]
   end function
 
-  function compilation_edge(file, other_dependencies) result (return_value)
+  function compilation_edge(file, explicit, implicit) result (return_value)
     character(len=*), intent(in)  :: file
     ! @todo it might be better to pass dependencies as array?
-    character(len=*), intent(in)  :: other_dependencies
+    character(len=*), intent(in), optional  :: explicit
+    character(len=*), intent(in), optional  :: implicit
     character(len=:), allocatable :: return_value
+    character(len=:), allocatable :: compilation
+    compilation = file
+    if (present(explicit)) compilation = compilation  // ' ' // explicit
     return_value = build_edge(to_object_path(file), 'fc', &
-         file // ' ' // other_dependencies)
+         compilation, implicit)
   end function
 
   function linking_edge(file, dependencies) result (return_value)
@@ -146,14 +151,17 @@ contains
     return_value = build_edge(file, 'flink', dependencies)
   end function
 
-  function build_edge(outputs, rule, explicit_dependencies) &
+  function build_edge(outputs, rule, explicit, implicit) &
        result (return_value)
     character(len=*), intent(in)  :: outputs
     character(len=*), intent(in)  :: rule
-    character(len=*), intent(in)  :: explicit_dependencies
+    character(len=*), intent(in)  :: explicit
+    character(len=*), intent(in), optional  :: implicit
     character(len=:), allocatable :: return_value
-    return_value = 'build ' // outputs // ' : ' // rule // ' ' // &
-         explicit_dependencies
+    return_value = 'build ' // outputs // ' : ' // rule // ' ' // explicit
+    if (present(implicit)) then
+       return_value = return_value // ' | ' // implicit
+    end if
   end function
 
   function to_object_path(file) result (return_value)
