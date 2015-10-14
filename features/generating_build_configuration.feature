@@ -1,4 +1,4 @@
-Feature: Generating files
+Feature: Generating build configuration
 
   Background:
     Given any valid configuration
