@@ -125,6 +125,7 @@ contains
   function build_edges() result (return_value)
     character(len=:), allocatable :: return_value(:)
     return_value = [compilation_edge('main.f90', ''), &
+         compilation_edge('A_1.f90', ''), &
          linking_edge('$output_directory/generated.exe', &
                       '$output_directory/main.obj')]
   end function

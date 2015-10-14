@@ -53,6 +53,9 @@ Feature: Generating build configuration
   Scenario: Build configuration is set to build program file
     Then build configuration is set to compile "main.f90"
 
+  Scenario: Build configuration is set to build program file
+    Then build configuration is set to compile "A_1.f90"
+
   Scenario Outline: Build configuration file defines debug compilation options
     Then linking options include "<option>"
 
