@@ -91,3 +91,11 @@ end
 Then(/^output contains print\-line from "([^"]*)"$/) do |expected|
   assert_match(/#{expected}/, output_from_generated_exe)
 end
+
+Given(/^count of files in component is (\d+)$/) do |count|
+  set_file_count_to(count)
+end
+
+Then(/^component should have (\d+) files generated$/) do |count|
+  assert_equal count.to_i, generated_files_in_component?('A').size
+end
