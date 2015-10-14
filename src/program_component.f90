@@ -49,6 +49,7 @@ contains
     type(File) :: component_file
 
     component_file = File(path)
-    return_value = component_file%write_line('')
+    return_value = component_file%write_line('module ' // this%name)
+    return_value = component_file%write_line('end module')
   end function
 end module
