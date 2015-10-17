@@ -79,3 +79,4 @@ Feature: Generating build configuration
 
   Scenario: Linking executable will include the object files
     Then build configuration will link object "$output_directory/main.obj"
+    And build configuration will link object "$output_directory/A_1.obj"

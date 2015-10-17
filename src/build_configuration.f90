@@ -128,7 +128,7 @@ contains
          implicit='$output_directory/A_1.obj'), &
          compilation_edge('A_1.f90'), &
          linking_edge('$output_directory/generated.exe', &
-                      '$output_directory/main.obj')]
+                      '$output_directory/main.obj $output_directory/A_1.obj')]
   end function
 
   function compilation_edge(file, explicit, implicit) result (return_value)
