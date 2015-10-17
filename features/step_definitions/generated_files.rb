@@ -7,14 +7,29 @@ module GeneratedFiles
     generated_source_files?.select {|f| f=~ /#{component}_.*\.f90/}
   end
 
+  # Note: the parsing in these helpers is fragile and cumbersome. But
+  # implementing an actual parser would be too much effort for
+  # purposes of this project (just generating fortran for the sake of
+  # lines of code)
+
   def read_module_from_file(path)
+    read_scope_from_file(path, 'module')
+  end
+
+  def read_subroutine_from_file(path)
+    read_scope_from_file(path, 'subroutine')
+  end
+
+  private
+
+  def read_scope_from_file(path, identifier)
     contents = open(path).readlines
-    module_lines = contents.grep(/^(end )*module/)
-    assert_equal 2, module_lines.size(), "#{path} does not define module"
-    module_match = module_lines[0].match(/module (\w+)/)
-    assert module_match, "#{path} does not define module"
-    assert_match(/end module/, module_lines[1])
-    return module_match.captures[0]
+    scope_lines = contents.grep(/^(end )*\b#{identifier}\b/)
+    assert_equal 2, scope_lines.size(), "#{path} does not define #{identifier}"
+    scope_match = scope_lines[0].match(/#{identifier} (\w+)/)
+    assert scope_match, "#{path} does not define #{identifier}"
+    assert_match(/end #{identifier}/, scope_lines[1])
+    return scope_match.captures[0]
   end
 end
 

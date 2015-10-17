@@ -1,6 +1,7 @@
 module program_component
 
   use configuration
+  use file_system
 
   implicit none
 
@@ -13,6 +14,7 @@ module program_component
    contains
      procedure :: generate
      procedure, private :: generate_file
+     procedure, private :: generate_subroutine
   end type
 
   interface Component
@@ -41,15 +43,30 @@ contains
   end function
 
   function generate_file(this, path) result(return_value)
-    use file_system
-
     class(Component) :: this
     character(len=*) :: path
     logical :: return_value
     type(File) :: component_file
 
     component_file = File(path)
-    return_value = component_file%write_line('module ' // this%name)
-    return_value = component_file%write_line('end module')
+    return_value = .false.
+    if (.not. component_file%write_line('module ' // this%name)) return
+    if (.not. component_file%write_line('contains')) return
+    if (.not. this%generate_subroutine(component_file)) return
+    if (.not. component_file%write_line('end module')) return
+    return_value = .true.
+  end function
+
+  function generate_subroutine(this, output) result(return_value)
+    class(Component) :: this
+    type(File), intent(in) :: output
+    character(len=:), allocatable :: declaration
+    logical :: return_value
+
+    return_value = .false.
+    declaration = 'subroutine call_' // this%name // '()'
+    if (.not. output%write_line(declaration)) return
+    if (.not. output%write_line('end subroutine')) return
+    return_value = .true.
   end function
 end module

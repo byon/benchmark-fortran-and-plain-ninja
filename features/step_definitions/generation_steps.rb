@@ -106,6 +106,10 @@ Then(/^component should have (\d+) files generated$/) do |count|
   assert_equal count.to_i, generated_files_in_component?('A').size
 end
 
-Then(/^"([^"]*)" for component should contain module "([^"]*)"$/) do |path, expected|
+Then(/^"([^"]*)" should contain module "([^"]*)"$/) do |path, expected|
   assert_equal expected, read_module_from_file(path)
+end
+
+Then(/^"([^"]*)" should contain subroutine "([^"]*)"$/) do |path, expected|
+  assert_equal expected, read_subroutine_from_file(path)
 end
