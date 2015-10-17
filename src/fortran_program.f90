@@ -47,7 +47,9 @@ contains
     return_value = .false.
     main = File(this%target_file)
     if (.not. main%write_line('program ' // this%the_options%program_name)) return
+    if (.not. main%write_line('use A')) return
     if (.not. main%write_line('write (*, "(A)") __FILE__')) return
+    if (.not. main%write_line('call call_A()')) return
     if (.not. main%write_line('end program')) return
 
     return_value = .true.

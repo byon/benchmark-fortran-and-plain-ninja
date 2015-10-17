@@ -22,6 +22,14 @@ Then(/^file "([^"]*)" defines program "([^"]*)"$/) do |path, program|
   assert_match(/end program/, text, 'program end is not defined')
 end
 
+Then(/^file "([^"]*)" calls subroutine from component "([^"]*)"$/) do |path, component|
+  text = File.open(path).read
+  assert_match(/use #{component}/, text,
+               "Missing use module statement for #{component}")
+  assert_match(/call call_#{component}()/, text,
+               "Missing subroutine call to #{component}")
+end
+
 Then(/^build configuration file requires ninja version "([^"]*)"$/) do |version|
   assert_equal(version, required_ninja_version)
 end
