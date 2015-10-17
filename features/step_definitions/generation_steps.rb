@@ -113,3 +113,9 @@ end
 Then(/^"([^"]*)" should contain subroutine "([^"]*)"$/) do |path, expected|
   assert_equal expected, read_subroutine_from_file(path)
 end
+
+Then(/^"([^"]*)" should contain print line$/) do |path|
+  component = path.match(/([A-Z+])_\d\.f90/).captures[0]
+  assert_includes(read_subroutine_lines(path, "call_#{component}"),
+                  'write (*, "(A)") __FILE__')
+end

@@ -9,3 +9,6 @@ Feature: Generating file in a component
 
   Scenario: Generating public function
     Then "generated/A_1.f90" should contain subroutine "call_A"
+
+  Scenario: Generating public function
+    Then "generated/A_1.f90" should contain print line

@@ -20,6 +20,10 @@ module GeneratedFiles
     read_scope_from_file(path, 'subroutine')
   end
 
+  def read_subroutine_lines(path, subroutine_name)
+    read_lines_between(path, "subroutine #{subroutine_name}", 'end subroutine')
+  end
+
   private
 
   def read_scope_from_file(path, identifier)
@@ -30,6 +34,24 @@ module GeneratedFiles
     assert scope_match, "#{path} does not define #{identifier}"
     assert_match(/end #{identifier}/, scope_lines[1])
     return scope_match.captures[0]
+  end
+
+  def read_lines_between(path, start, stop)
+    result = []
+    is_in_between = false
+    open(path).each_line do |line|
+      if line =~ /#{start}/
+        is_in_between = true
+        next
+      end
+      if line =~ /#{stop}/
+        assert is_in_between, "Found #{stop} before #{start}"
+        return result
+      end
+      result << line.gsub(/[\r\n]/, '') if is_in_between
+    end
+    assert is_in_between, "Neither #{stop} or #{start} is defined"
+    flunk "Did not find #{stop}"
   end
 end
 

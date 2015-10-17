@@ -66,6 +66,7 @@ contains
     return_value = .false.
     declaration = 'subroutine call_' // this%name // '()'
     if (.not. output%write_line(declaration)) return
+    if (.not. output%write_line('write (*, "(A)") __FILE__')) return
     if (.not. output%write_line('end subroutine')) return
     return_value = .true.
   end function
