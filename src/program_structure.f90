@@ -8,6 +8,7 @@ module program_structure
   type, public :: ComponentData
      character(len=:), allocatable :: name
      character(len=:), allocatable :: main_file
+     character(len=:), allocatable :: files(:)
   end type
 
   public :: analyze_needed_components
@@ -31,26 +32,49 @@ contains
     type(Options), intent(in) :: the_options
     type(ComponentData), allocatable, intent(out) :: return_value(:)
     allocate(return_value(1))
-    return_value = [new_component(the_options%target_directory, 0)]
+    ! Note: the main file of a component is included in the file count
+    !       -> always reduce the file count by 1
+    return_value = [new_component(the_options%target_directory, 0, &
+         the_options%file_count-1)]
   end subroutine
 
-  function new_component(target_directory, counter) result(return_value)
+  function new_component(target_directory, counter, file_count) &
+       result(return_value)
     type(ComponentData) :: return_value
     character(len=*), intent(in) :: target_directory
-    integer, intent(in) :: counter
+    integer, intent(in) :: counter, file_count
+    character(len=:), allocatable :: id
+
+    id = component_id(counter)
 
     ! Passing empty string as a "file", because compiler crashes otherwise
     ! Besides there will later be values
-    return_value = ComponentData(component_id(counter), &
-         component_main_file(target_directory, counter))
+    return_value = ComponentData(id, &
+         component_main_file(target_directory, id), &
+         files_for_a_component(target_directory, id, file_count))
   end function
 
-  function component_main_file(target_directory, counter) result(return_value)
+  function component_main_file(target_directory, id) result(return_value)
     character(len=:), allocatable :: return_value
     character(len=*), intent(in) :: target_directory
-    integer, intent(in) :: counter
-    return_value = target_directory // '/' // component_id(counter) // &
-         '_main.f90'
+    character(len=*), intent(in) :: id
+    return_value = target_directory // '/' // id // '_main.f90'
+  end function
+
+  function files_for_a_component(target_directory, id, file_count) &
+       result(return_value)
+    character(len=:), allocatable :: return_value(:)
+    character(len=*), intent(in) :: target_directory
+    character(len=*), intent(in) :: id
+    integer, intent(in) :: file_count
+    integer :: i
+    character(len=2056) :: path
+
+    allocate(character(len=2056) :: return_value(file_count))
+    do i=1, file_count
+       write(path, "(A, I0, A)") target_directory // '/' // id // '_', i, '.f90'
+       return_value(i) = trim(path)
+    end do
   end function
 
   function component_id(counter) result(return_value)

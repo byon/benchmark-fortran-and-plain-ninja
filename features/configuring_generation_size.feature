@@ -8,3 +8,5 @@ Feature: Configuring generation size
     Examples:
     | number |
     |      1 |
+    |      2 |
+    |     10 |
