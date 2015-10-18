@@ -1,6 +1,7 @@
 module build_configuration
 
   use file_system
+  use program_structure
 
   implicit none
 
@@ -8,8 +9,14 @@ module build_configuration
 
   type, public :: BuildConfiguration
      character(len=:), allocatable :: path
+    type(ComponentData), allocatable :: components(:)
    contains
      procedure :: generate
+     procedure, private :: all_objects
+     procedure, private :: build_edges
+     procedure, private :: compilation_edges_for_components
+     procedure, private :: component_main_objects
+     procedure, private :: objects_of_components
   end type
 
   interface BuildConfiguration
@@ -18,10 +25,12 @@ module build_configuration
 
 contains
 
-  function construct_configuration(directory) result(new_configuration)
+  function construct_configuration(directory, components) result(new_configuration)
     type(BuildConfiguration) :: new_configuration
-    character(len=*) :: directory
+    character(len=*), intent(in) :: directory
+    type(ComponentData), allocatable, intent(in) :: components(:)
     new_configuration%path = directory // '/build.ninja'
+    allocate(new_configuration%components, source=components)
   end function
 
   function generate(this) result(return_value)
@@ -29,7 +38,7 @@ contains
     logical :: return_value
     character(len=:), allocatable :: lines(:)
 
-    lines = [variable_declarations(), rules(), build_edges()]
+    lines = [variable_declarations(), rules(), this%build_edges()]
     return_value = write_to_file(this%path, lines)
   end function
 
@@ -122,13 +131,42 @@ contains
          '']
   end function
 
-  function build_edges() result (return_value)
+  function build_edges(this) result (return_value)
+    class(BuildConfiguration) :: this
     character(len=:), allocatable :: return_value(:)
-    return_value = [compilation_edge('main.f90', &
-         implicit='$output_directory/A_1.obj'), &
-         compilation_edge('A_1.f90'), &
-         linking_edge('$output_directory/generated.exe', &
-                      '$output_directory/main.obj $output_directory/A_1.obj')]
+    return_value = [compilation_edge('main.f90', implicit=this%component_main_objects()), &
+         this%compilation_edges_for_components(), &
+         linking_edge('$output_directory/generated.exe', this%all_objects())]
+  end function
+
+  function component_main_objects(this) result (return_value)
+    class(BuildConfiguration) :: this
+    character(len=:), allocatable :: return_value
+    return_value = to_object_path(this%components(1)%main_file)
+  end function
+
+  function compilation_edges_for_components(this) result (return_value)
+    class(BuildConfiguration) :: this
+    character(len=:), allocatable :: return_value
+    return_value = compilation_edge(extract_file_name_from_path(this%components(1)%main_file))
+  end function
+
+  function all_objects(this) result (return_value)
+    class(BuildConfiguration) :: this
+    character(len=:), allocatable :: return_value
+    return_value = '$output_directory/main.obj ' // this%objects_of_components()
+  end function
+
+  function objects_of_components(this) result (return_value)
+    class(BuildConfiguration) :: this
+    character(len=:), allocatable :: return_value
+    return_value = objects_of_component(this%components(1))
+  end function
+
+  function objects_of_component(component_data) result (return_value)
+    class(ComponentData) :: component_data
+    character(len=:), allocatable :: return_value
+    return_value = to_object_path(component_data%main_file)
   end function
 
   function compilation_edge(file, explicit, implicit) result (return_value)

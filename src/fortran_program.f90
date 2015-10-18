@@ -1,34 +1,40 @@
 module fortran_program
-  use configuration
   use file_system
+  use program_structure
 
   implicit none
 
   private
 
   type, public :: Program
-     type(Options) :: the_options
+     type(ComponentData), allocatable :: components(:)
      character(len=:), allocatable :: target_file
+     character(len=:), allocatable :: program_name
    contains
      procedure :: generate
      procedure, private :: generate_main
+     procedure, private :: generate_use_statements
+     procedure, private :: generate_component_calls
      procedure, private :: generate_components
-     procedure, private :: generate_component
-     procedure, private :: component_path
   end type
 
-  interface Program
-     module procedure :: construct_program
-  end interface
+  public :: construct_program
 
 contains
 
-  function construct_program(the_options) result(new_program)
+  function construct_program(target_directory, program_name, components) &
+       result(new_program)
     type(Program) :: new_program
-    type(Options), intent(in) :: the_options
+    type(ComponentData), intent(in) :: components(:)
+    character(len=*), intent(in) :: target_directory
+    character(len=*), intent(in) :: program_name
 
-    new_program%target_file = the_options%target_directory // '/main.f90'
-    new_program%the_options = the_options
+    new_program%target_file = target_directory // '/main.f90'
+    new_program%program_name = program_name
+    ! Compiler allows simple assignment from parameter to member variable.
+    ! However, that does not actually do anything, which will result in a
+    ! crash later on.
+    allocate(new_program%components, source=components)
   end function
 
   function generate(this) result(return_value)
@@ -46,12 +52,28 @@ contains
 
     return_value = .false.
     main = File(this%target_file)
-    if (.not. main%write_line('program ' // this%the_options%program_name)) return
-    if (.not. main%write_line('use A')) return
+    if (.not. main%write_line('program ' // this%program_name)) return
+    if (.not. this%generate_use_statements(main)) return
     if (.not. main%write_line('write (*, "(A)") __FILE__')) return
-    if (.not. main%write_line('call call_A()')) return
+    if (.not. this%generate_component_calls(main)) return
     if (.not. main%write_line('end program')) return
 
+    return_value = .true.
+  end function
+
+  function generate_use_statements(this, output) result(return_value)
+    class(Program) :: this
+    type(File), intent(in) :: output
+    logical :: return_value
+    if (.not. output%write_line('use ' // this%components(1)%name)) return
+    return_value = .true.
+  end function
+
+  function generate_component_calls(this, output) result(return_value)
+    class(Program) :: this
+    type(File), intent(in) :: output
+    logical :: return_value
+    if (.not. output%write_line('call call_' // this%components(1)%name // '()')) return
     return_value = .true.
   end function
 
@@ -61,28 +83,20 @@ contains
     integer :: i
 
     return_value = .false.
-    do i = 0, this%the_options%file_count - 1
-       if (.not. this%generate_component(i)) return
+    do i = 1, size(this%components)
+       if (.not. generate_component(this%components(i))) return
     end do
 
     return_value = .true.
   end function
 
-  function generate_component(this, id) result(return_value)
+  function generate_component(component_data) result(return_value)
     use program_component
-
-    class(Program) :: this
-    integer, intent(in) :: id
+    class(ComponentData), intent(in) :: component_data
     logical :: return_value
     type(Component) :: a_component
-    a_component = construct_component(this%the_options, this%component_path(id))
-    return_value = a_component%generate()
-  end function
 
-  function component_path(this, id) result(return_value)
-    class(Program) :: this
-    character(len=:), allocatable :: return_value
-    integer, intent(in) :: id
-    return_value = trim(char(ichar('A') + id))
+    a_component = Component(component_data)
+    return_value = a_component%generate()
   end function
 end module
