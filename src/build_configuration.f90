@@ -147,8 +147,24 @@ contains
 
   function compilation_edges_for_components(this) result (return_value)
     class(BuildConfiguration) :: this
-    character(len=:), allocatable :: return_value
-    return_value = compilation_edge(extract_file_name_from_path(this%components(1)%main_file))
+    character(len=:), allocatable :: return_value(:)
+    return_value = compilation_edges_for_component(this%components(1))
+  end function
+
+  function compilation_edges_for_component(component_data) result (return_value)
+    type(ComponentData) :: component_data
+    character(len=:), allocatable :: return_value(:)
+    character(len=:), allocatable :: file_name
+    integer :: i
+
+    allocate(character(len=2056):: return_value(size(component_data%files) + 1))
+    file_name = extract_file_name_from_path(component_data%main_file)
+    return_value(1) = compilation_edge(file_name)
+
+    do i=1, size(component_data%files)
+       file_name = extract_file_name_from_path(component_data%files(i))
+       return_value(i+1) = compilation_edge(file_name)
+    end do
   end function
 
   function all_objects(this) result (return_value)
