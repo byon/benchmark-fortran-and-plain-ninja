@@ -5,10 +5,10 @@ Feature: Generating file in a component
     When files are generated
 
   Scenario: Generating module
-    Then "generated/A_1.f90" should contain module "A"
+    Then "generated/A_main.f90" should contain module "A"
 
   Scenario: Generating public function
-    Then "generated/A_1.f90" should contain subroutine "call_A"
+    Then "generated/A_main.f90" should contain subroutine "call_A"
 
   Scenario: Generating public function
-    Then "generated/A_1.f90" should contain print line
+    Then "generated/A_main.f90" should contain print line

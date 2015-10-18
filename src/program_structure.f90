@@ -49,7 +49,8 @@ contains
     character(len=:), allocatable :: return_value
     character(len=*), intent(in) :: target_directory
     integer, intent(in) :: counter
-    return_value = target_directory // '/' // component_id(counter) // '_1.f90'
+    return_value = target_directory // '/' // component_id(counter) // &
+         '_main.f90'
   end function
 
   function component_id(counter) result(return_value)

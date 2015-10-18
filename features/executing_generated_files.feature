@@ -8,4 +8,4 @@ Feature: Building generated files
     Then output contains print-line from "main.f90"
 
   Scenario: Component is executed
-    Then output contains print-line from "A_1.f90"
+    Then output contains print-line from "A_main.f90"

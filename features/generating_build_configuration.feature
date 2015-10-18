@@ -53,11 +53,11 @@ Feature: Generating build configuration
   Scenario: Build configuration is set to build program file
     Then build configuration is set to compile "main.f90"
 
-  Scenario: Build configuration is set to build program file
-    Then build configuration is set to compile "A_1.f90"
+  Scenario: Build configuration is set to build main component file
+    Then build configuration is set to compile "A_main.f90"
 
   Scenario: Main fortran file is set to be dependant on component files
-    Then "main.f90" is dependent on "A_1.f90"
+    Then "main.f90" is dependent on "A_main.f90"
 
   Scenario Outline: Build configuration file defines debug compilation options
     Then linking options include "<option>"
@@ -79,4 +79,4 @@ Feature: Generating build configuration
 
   Scenario: Linking executable will include the object files
     Then build configuration will link object "$output_directory/main.obj"
-    And build configuration will link object "$output_directory/A_1.obj"
+    And build configuration will link object "$output_directory/A_main.obj"

@@ -8,7 +8,7 @@ Feature: Building generated files
     Then there is a file "generated/build/debug/main.obj"
 
   Scenario: Building component object files
-    Then there is a file "generated/build/debug/A_1.obj"
+    Then there is a file "generated/build/debug/A_main.obj"
 
   Scenario: Building executable
     Then there is a file "generated/build/debug/generated.exe"
