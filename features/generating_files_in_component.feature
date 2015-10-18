@@ -13,6 +13,9 @@ Feature: Generating files in a component
   Scenario: Generating main file print lines
     Then "generated/A_main.f90" should contain print line
 
+  Scenario: Generating calls to additional files
+    Then file "generated/A_main.f90" calls subroutine from component "A_1"
+
   Scenario: Generating additional file module
     Then "generated/A_1.f90" should contain module "A_1"
 

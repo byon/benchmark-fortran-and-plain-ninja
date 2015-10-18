@@ -12,11 +12,13 @@ module program_component
      type(ComponentData) :: component_data
    contains
      procedure :: generate
+     procedure, private :: generate_calls_to_files
      procedure, private :: generate_file
      procedure, private :: generate_files
      procedure, private :: generate_main_file
      procedure, private :: generate_main_subroutine
      procedure, private :: generate_subroutine
+     procedure, private :: generate_use_statements
   end type
 
 contains
@@ -38,9 +40,25 @@ contains
     component_file = File(path)
     return_value = .false.
     if (.not. component_file%write_line('module ' // this%component_data%name)) return
+    if (.not. this%generate_use_statements(component_file)) return
     if (.not. component_file%write_line('contains')) return
     if (.not. this%generate_main_subroutine(component_file)) return
     if (.not. component_file%write_line('end module')) return
+    return_value = .true.
+  end function
+
+  function generate_use_statements(this, output) result(return_value)
+    class(Component) :: this
+    type(File), intent(in) :: output
+    logical :: return_value
+    integer :: i
+    character(len=:), allocatable :: name
+
+    return_value = .false.
+    do i = 1, size(this%component_data%files)
+       name = module_name_from_path(this%component_data%files(i))
+       if (.not. output%write_line('use ' // name)) return
+    end do
     return_value = .true.
   end function
 
@@ -52,6 +70,21 @@ contains
     return_value = .false.
     do i = 1, size(this%component_data%files)
        if (.not. this%generate_file(this%component_data%files(i))) return
+    end do
+    return_value = .true.
+  end function
+
+  function generate_calls_to_files(this, output) result(return_value)
+    class(Component) :: this
+    type(File), intent(in) :: output
+    logical :: return_value
+    character(len=:), allocatable :: name
+    integer :: i
+
+    return_value = .false.
+    do i = 1, size(this%component_data%files)
+       name = module_name_from_path(this%component_data%files(i))
+       if (.not. output%write_line('call call_' // name // '()')) return
     end do
     return_value = .true.
   end function
@@ -76,23 +109,26 @@ contains
   function generate_main_subroutine(this, output) result(return_value)
     class(Component) :: this
     type(File), intent(in) :: output
-    character(len=:), allocatable :: name
+    character(len=:), allocatable :: declaration
     logical :: return_value
 
-    name = 'call_' // this%component_data%name
-    return_value = this%generate_subroutine(output, name)
+    return_value = .false.
+    declaration = 'subroutine call_' // this%component_data%name // '()'
+    if (.not. output%write_line(declaration)) return
+    if (.not. output%write_line('write (*, "(A)") __FILE__')) return
+    if (.not. this%generate_calls_to_files(output)) return
+    if (.not. output%write_line('end subroutine')) return
+    return_value = .true.
   end function
 
   function generate_subroutine(this, output, name) result(return_value)
     class(Component) :: this
     type(File), intent(in) :: output
     character(len=*), intent(in) :: name
-    character(len=:), allocatable :: declaration
     logical :: return_value
 
     return_value = .false.
-    declaration = 'subroutine ' // name // '()'
-    if (.not. output%write_line(declaration)) return
+    if (.not. output%write_line('subroutine ' // name // '()')) return
     if (.not. output%write_line('write (*, "(A)") __FILE__')) return
     if (.not. output%write_line('end subroutine')) return
     return_value = .true.
