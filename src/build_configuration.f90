@@ -159,7 +159,8 @@ contains
 
     allocate(character(len=2056):: return_value(size(component_data%files) + 1))
     file_name = extract_file_name_from_path(component_data%main_file)
-    return_value(1) = compilation_edge(file_name)
+    return_value(1) = compilation_edge(file_name, &
+         implicit=objects_of_component(component_data))
 
     do i=1, size(component_data%files)
        file_name = extract_file_name_from_path(component_data%files(i))
@@ -176,13 +177,28 @@ contains
   function objects_of_components(this) result (return_value)
     class(BuildConfiguration) :: this
     character(len=:), allocatable :: return_value
-    return_value = objects_of_component(this%components(1))
+    return_value = all_objects_of_component(this%components(1))
+  end function
+
+  function all_objects_of_component(component_data) result (return_value)
+    class(ComponentData) :: component_data
+    character(len=:), allocatable :: return_value
+    return_value = to_object_path(component_data%main_file)
   end function
 
   function objects_of_component(component_data) result (return_value)
     class(ComponentData) :: component_data
     character(len=:), allocatable :: return_value
-    return_value = to_object_path(component_data%main_file)
+    integer :: i
+    return_value = ''
+    do i=1, size(component_data%files)
+       ! Probably not a stellar idea to allocate the return value from
+       ! start all over again in each loop (assuming Fortran is not
+       ! smart enough to optimize this).
+       ! But it is simple and gets the job done (well enough)
+       return_value = return_value // ' ' // &
+            to_object_path(component_data%files(i))
+    end do
   end function
 
   function compilation_edge(file, explicit, implicit) result (return_value)

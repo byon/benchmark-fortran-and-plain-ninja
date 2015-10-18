@@ -64,7 +64,7 @@ end
 Then(/^"([^"]*)" is dependent on "([^"]*)"$/) do |dependant, source|
   edge = build_edges_by_input(dependant)
   assert_equal('fc', edge.rule)
-  assert_equal([expected_object_path(source)], edge.implicit_dependencies)
+  assert_includes(edge.implicit_dependencies, expected_object_path(source))
 end
 
 def expected_object_path(fortran_path)

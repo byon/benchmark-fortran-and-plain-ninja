@@ -15,3 +15,8 @@ Feature: Configuring generation size
     Given count of files in component is 2
     When files are generated
     Then build configuration is set to compile "A_1.f90"
+
+  Scenario: configuring dependency to files in component
+    Given count of files in component is 2
+    When files are generated
+    Then "A_main.f90" is dependent on "A_1.f90"
