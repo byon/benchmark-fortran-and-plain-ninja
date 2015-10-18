@@ -183,7 +183,8 @@ contains
   function all_objects_of_component(component_data) result (return_value)
     class(ComponentData) :: component_data
     character(len=:), allocatable :: return_value
-    return_value = to_object_path(component_data%main_file)
+    return_value = to_object_path(component_data%main_file) // &
+         objects_of_component(component_data)
   end function
 
   function objects_of_component(component_data) result (return_value)

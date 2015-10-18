@@ -20,3 +20,8 @@ Feature: Configuring generation size
     Given count of files in component is 2
     When files are generated
     Then "A_main.f90" is dependent on "A_1.f90"
+
+  Scenario: Linking executable will include the object files
+    Given count of files in component is 2
+    When files are generated
+    And build configuration will link object "$output_directory/A_1.obj"
