@@ -1,5 +1,9 @@
 Given(/^a missing file count$/) do
-  create_configuration_where_file_count_is_missing
+  create_configuration_with_missing_file_count
+end
+
+Given(/^a missing row count$/) do
+  create_configuration_with_missing_row_count
 end
 
 When(/^file generation is tried$/) do

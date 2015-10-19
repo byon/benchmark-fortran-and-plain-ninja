@@ -8,6 +8,7 @@ module configuration
      character(len=:), allocatable :: target_directory
      character(len=:), allocatable :: program_name
      integer :: file_count
+     integer :: row_count
    contains
      procedure :: validate
   end type
@@ -26,6 +27,7 @@ contains
     character(len=*) :: target_directory
     character(len=*) :: program_name
     new_configuration%file_count = get_integer_argument_at(1)
+    new_configuration%row_count = get_integer_argument_at(2)
     new_configuration%target_directory = target_directory
     new_configuration%program_name = program_name
   end function
@@ -67,14 +69,26 @@ contains
     class(Options) :: this
     logical :: return_value
 
-    if (this%file_count < 0) then
-       call error('Error: missing file count')
+    return_value = .false.
+    if (.not. validate_numeric(this%file_count, 'file count')) return
+    if (.not. validate_numeric(this%row_count, 'row count')) return
+
+    return_value = .true.
+  end function validate
+
+  function validate_numeric(numeric, id) result(return_value)
+    integer, intent(in) :: numeric
+    character(len=*), intent(in) :: id
+    logical :: return_value
+
+    if (numeric < 0) then
+       call error('Error: missing ' // id)
        return_value = .false.
        return
     end if
 
     return_value = .true.
-  end function validate
+  end function
 
   ! @todo This function is duplicated
   subroutine error(message)

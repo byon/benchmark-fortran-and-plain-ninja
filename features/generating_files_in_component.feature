@@ -1,7 +1,8 @@
 Feature: Generating files in a component
 
   Background:
-    Given count of files in component is 2
+    Given any valid configuration
+    And count of files in component is 2
     When files are generated
 
   Scenario: Generating main file module

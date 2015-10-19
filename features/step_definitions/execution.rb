@@ -39,10 +39,10 @@ module Execution
   private
 
   def generation_command
-    if @generated_files == nil
-      return ["build/debug/generate.exe"]
-    end
-    return ["build/debug/generate.exe", "#{@generated_files}"]
+    result = ["build/debug/generate.exe"]
+    result << "#{@generated_files}" if @generated_files
+    result << "#{@generated_rows}" if @generated_rows
+    return result
   end
 
   def build_command

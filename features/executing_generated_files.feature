@@ -1,7 +1,8 @@
 Feature: Executing generated files
 
   Background:
-    Given count of files in component is 2
+    Given any valid configuration
+    And count of files in component is 2
     When executable built from generated files is executed
 
   Scenario: Main program is executed

@@ -1,6 +1,11 @@
 Feature: Error situations
 
-  Scenario: Missing file count is an error
-    Given a missing file count
+  Scenario Outline: Missing configuration option
+    Given a missing <configuration>
     When file generation is tried
-    Then generation failed because of "missing file count"
+    Then generation failed because of "<error>"
+
+    Examples:
+    | configuration | error              |
+    | file count    | missing file count |
+    | row count     | missing row count  |
