@@ -47,8 +47,6 @@ contains
 
     id = component_id(counter)
 
-    ! Passing empty string as a "file", because compiler crashes otherwise
-    ! Besides there will later be values
     return_value = ComponentData(id, &
          component_main_file(target_directory, id), &
          files_for_a_component(target_directory, id, file_count))
