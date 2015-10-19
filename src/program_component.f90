@@ -8,8 +8,11 @@ module program_component
 
   private
 
+  character(len=*), parameter :: WRITE_FILE = 'write (*, "(A)") __FILE__'
+
   type, public :: Component
      type(ComponentData) :: component_data
+     integer :: row_count
    contains
      procedure :: generate
      procedure, private :: generate_calls_to_files
@@ -129,8 +132,24 @@ contains
 
     return_value = .false.
     if (.not. output%write_line('subroutine ' // name // '()')) return
-    if (.not. output%write_line('write (*, "(A)") __FILE__')) return
+    if (.not. output%write_line(WRITE_FILE)) return
+    if (.not. generate_fill_lines(output, this%row_count)) return
     if (.not. output%write_line('end subroutine')) return
+    return_value = .true.
+  end function
+
+  function generate_fill_lines(output, count) result(return_value)
+    type(File), intent(in) :: output
+    integer, intent(in) :: count
+    logical :: return_value
+    integer :: i
+    character(len=*), parameter :: FILL_LINE = &
+         'if (index(__FILE__, "not there") > 0) ' // WRITE_FILE
+
+    return_value = .false.
+    do i=1, count
+       if (.not. output%write_line(FILL_LINE)) return
+    end do
     return_value = .true.
   end function
 

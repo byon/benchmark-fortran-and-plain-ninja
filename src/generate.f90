@@ -25,7 +25,7 @@ program generate
   if (.not. configuration_file%generate()) stop 1
 
   main = construct_program(the_options%target_directory, &
-       the_options%program_name, components)
+       the_options%program_name, components, the_options%row_count)
   if (.not. main%generate()) stop 1
 
 end program generate

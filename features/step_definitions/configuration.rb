@@ -22,6 +22,10 @@ module Configuration
   def set_file_count_to(count)
     @generated_files = count
   end
+
+  def set_row_count_to(count)
+    @generated_rows = count
+  end
 end
 
 World(Configuration)

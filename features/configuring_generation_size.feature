@@ -29,3 +29,17 @@ Feature: Configuring generation size
     And count of files in component is 2
     When files are generated
     And build configuration will link object "$output_directory/A_1.obj"
+
+
+  Scenario Outline: configuring count of rows in component files
+    Given any valid configuration
+    And count of files in component is 2
+    And count of rows in component files is <number>
+    When files are generated
+    Then "generated/A_1.f90" should contain <number> fill lines
+
+    Examples:
+    | number |
+    |      1 |
+    |      2 |
+    |     10 |

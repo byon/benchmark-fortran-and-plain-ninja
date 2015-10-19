@@ -10,6 +10,7 @@ module fortran_program
      type(ComponentData), allocatable :: components(:)
      character(len=:), allocatable :: target_file
      character(len=:), allocatable :: program_name
+     integer :: row_count
    contains
      procedure :: generate
      procedure, private :: generate_main
@@ -22,15 +23,17 @@ module fortran_program
 
 contains
 
-  function construct_program(target_directory, program_name, components) &
-       result(new_program)
+  function construct_program(target_directory, program_name, components, &
+       row_count) result(new_program)
     type(Program) :: new_program
     type(ComponentData), intent(in) :: components(:)
     character(len=*), intent(in) :: target_directory
     character(len=*), intent(in) :: program_name
+    integer, intent(in) :: row_count
 
     new_program%target_file = target_directory // '/main.f90'
     new_program%program_name = program_name
+    new_program%row_count = row_count
     ! Compiler allows simple assignment from parameter to member variable.
     ! However, that does not actually do anything, which will result in a
     ! crash later on.
@@ -84,19 +87,20 @@ contains
 
     return_value = .false.
     do i = 1, size(this%components)
-       if (.not. generate_component(this%components(i))) return
+       if (.not. generate_component(this%components(i), this%row_count)) return
     end do
 
     return_value = .true.
   end function
 
-  function generate_component(component_data) result(return_value)
+  function generate_component(component_data, row_count) result(return_value)
     use program_component
     class(ComponentData), intent(in) :: component_data
+    integer, intent(in) :: row_count
     logical :: return_value
     type(Component) :: a_component
 
-    a_component = Component(component_data)
+    a_component = Component(component_data, row_count)
     return_value = a_component%generate()
   end function
 end module

@@ -110,6 +110,10 @@ Given(/^count of files in component is (\d+)$/) do |count|
   set_file_count_to(count)
 end
 
+Given(/^count of rows in component files is (\d+)$/) do |count|
+  set_row_count_to(count)
+end
+
 Then(/^component should have (\d+) files generated$/) do |count|
   assert_equal count.to_i, generated_files_in_component?('A').size
 end
@@ -127,3 +131,12 @@ Then(/^"([^"]*)" should contain print line$/) do |path|
   assert_includes(read_subroutine_lines(path, "call_#{component}"),
                   'write (*, "(A)") __FILE__')
 end
+
+Then(/^"([^"]*)" should contain (\d+) fill lines$/) do |path, expected|
+  component = path.match(/([A-Z+])_.*\.f90/).captures[0]
+  all_lines = read_subroutine_lines(path, "call_#{component}").select
+  fill_lines = all_lines.select {|l| l == FILL_LINE }
+  assert_equal(expected.to_i, fill_lines.size)
+end
+
+FILL_LINE = 'if (index(__FILE__, "not there") > 0) write (*, "(A)") __FILE__'
