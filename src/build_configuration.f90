@@ -36,48 +36,26 @@ contains
   function generate(this) result(return_value)
     class(BuildConfiguration) :: this
     logical :: return_value
-    character(len=:), allocatable :: lines(:)
+    type(File) :: output
 
-    lines = [variable_declarations(), rules(), this%build_edges()]
-    return_value = write_to_file(this%path, lines)
-  end function
-
-  function write_to_file(path, lines) result(return_value)
-    character(len=*) :: path
-    character(len=:), allocatable :: lines(:)
-    logical :: return_value
-
-    type(File) :: ninja
-    integer :: i
-
-    ninja = File(path)
     return_value = .false.
-
-    do i = 1, size(lines)
-       if (.not. ninja%write_line(trim(lines(i)))) return
-    end do
-
-    return_value = .true.
+    output = File(this%path)
+    if (.not. variable_declarations(output)) return
+    if (.not. rules(output)) return
+    return_value = this%build_edges(output)
   end function
 
-  function variable_declarations() result(return_value)
-    character(len=:), allocatable :: return_value(:)
-
-    ! This declares all lines to be of the same length. This is a hack
-    ! that is necessary because of my lack of understanding of Fortran
-    ! and/or limitations of Fortran language. It would have been nicer
-    ! to let compiler allocate exactly the needed space, but I was not
-    ! able to figure out how to do that. An unfortunate result from
-    ! this is that the lines need to be trimmed before they are
-    ! written to the file.
-    return_value = (/ character(1024) :: &
-         'ninja_required_version = 1.6.0', &
-         'builddir = build', &
-         'configuration = debug', &
-         'output_directory = $builddir/$configuration', &
-         'fflags = ' // compilation_options(), &
-         'ldflags = ' // linking_options(), &
-         ''/)
+  function variable_declarations(output) result(return_value)
+    type(File), intent(in) :: output
+    logical :: return_value
+    return_value = .false.
+    if (.not. output%write_line('ninja_required_version = 1.6.0')) return
+    if (.not. output%write_line('builddir = build')) return
+    if (.not. output%write_line('configuration = debug')) return
+    if (.not. output%write_line('output_directory = $builddir/$configuration')) return
+    if (.not. output%write_line('fflags = ' // compilation_options())) return
+    if (.not. output%write_line('ldflags = ' // linking_options())) return
+    return_value = output%write_line('')
   end function
 
   function compilation_options() result(return_value)
@@ -110,33 +88,47 @@ contains
          '/MACHINE:X64'
   end function
 
-  function rules() result(return_value)
-    character(len=:), allocatable :: return_value(:)
-    return_value = [compilation_rule(), linking_rule()]
+  function rules(output) result(return_value)
+    type(File), intent(in) :: output
+    logical :: return_value
+
+    return_value = .false.
+    if (.not. compilation_rule(output)) return
+    return_value = linking_rule(output)
   end function
 
-  function compilation_rule() result(return_value)
-    character(len=:), allocatable :: return_value(:)
-    return_value = [ character(1024) :: &
-         'rule fc', &
-         '  command = ifort $fflags $in /object:$out', &
-         '']
+  function compilation_rule(output) result(return_value)
+    type(File), intent(in) :: output
+    logical :: return_value
+    return_value = .false.
+    if (.not. output%write_line('rule fc')) return
+    if (.not. output%write_line('  command = ifort $fflags $in /object:$out')) return
+    return_value = output%write_line('')
   end function
 
-  function linking_rule() result(return_value)
-    character(len=:), allocatable :: return_value(:)
-    return_value = [ character(1024) :: &
-         'rule flink', &
-         '  command = link /OUT:$out $ldflags $in', &
-         '']
+  function linking_rule(output) result(return_value)
+    type(File), intent(in) :: output
+    logical :: return_value
+
+    return_value = .false.
+    if (.not. output%write_line('rule flink')) return
+    if (.not. output%write_line('  command = link /OUT:$out $ldflags $in')) return
+    return_value = output%write_line('')
   end function
 
-  function build_edges(this) result (return_value)
+  function build_edges(this, output) result (return_value)
     class(BuildConfiguration) :: this
-    character(len=:), allocatable :: return_value(:)
-    return_value = [compilation_edge('main.f90', implicit=this%component_main_objects()), &
-         this%compilation_edges_for_components(), &
-         linking_edge('$output_directory/generated.exe', this%all_objects())]
+    type(File), intent(in) :: output
+    logical :: return_value
+
+    return_value = .false.
+    if (.not. output%write_line( &
+         compilation_edge('main.f90', &
+         implicit=this%component_main_objects()))) return
+    if (.not. this%compilation_edges_for_components(output)) return
+    return_value = output%write_line( &
+         linking_edge('$output_directory/generated.exe', &
+         this%all_objects()))
   end function
 
   function component_main_objects(this) result (return_value)
@@ -145,42 +137,33 @@ contains
     return_value = to_object_path(this%components(1)%main_file)
   end function
 
-  function compilation_edges_for_components(this) result (return_value)
+  function compilation_edges_for_components(this, output) result (return_value)
     class(BuildConfiguration) :: this
-    character(len=:), allocatable :: return_value(:)
-    return_value = compilation_edges_for_component(this%components(1))
+    type(File), intent(in) :: output
+    logical :: return_value
+    return_value = compilation_edges_for_component(output, this%components(1))
   end function
 
-  function compilation_edges_for_component(component_data) result (return_value)
+  function compilation_edges_for_component(output, component_data) &
+       result (return_value)
+    type(File), intent(in) :: output
     type(ComponentData) :: component_data
-    character(len=:), allocatable :: return_value(:)
+    logical :: return_value
     character(len=:), allocatable :: file_name
-    integer :: i, result_size
+    integer :: i
 
-    result_size = calculate_compilation_edge_size_for_component(component_data)
-    allocate(character(len=result_size) :: &
-         return_value(component_data%files() + 1))
-
+    return_value = .false.
     file_name = extract_file_name_from_path(component_data%main_file)
-    return_value(1) = compilation_edge(file_name, &
-         implicit=objects_of_component(component_data))
+    if (.not. output%write_line( &
+         compilation_edge(file_name, &
+         implicit=objects_of_component(component_data)))) return
 
     do i=1, component_data%files()
        file_name = extract_file_name_from_path(component_data%file_at(i))
-       return_value(i+1) = compilation_edge(file_name)
+       if (.not. output%write_line(compilation_edge(file_name))) return
     end do
-  end function
 
-  function calculate_compilation_edge_size_for_component(component_data) &
-      result(return_value)
-    type(ComponentData) :: component_data
-    integer :: i, return_value
-    ! "Some" + main file size + 1 for whitespace. "Some" is reserved for
-    ! the rest of the build edge
-    return_value = 256 + len(component_data%main_file) + 1
-    do i = 1, component_data%files()
-        return_value = return_value + len(trim(to_object_path(component_data%file_at(i)))) + 1
-    end do
+    return_value = .true.
   end function
 
   function all_objects(this) result (return_value)
