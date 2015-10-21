@@ -159,14 +159,14 @@ contains
 
     result_size = calculate_compilation_edge_size_for_component(component_data)
     allocate(character(len=result_size) :: &
-         return_value(size(component_data%files) + 1))
+         return_value(component_data%files() + 1))
 
     file_name = extract_file_name_from_path(component_data%main_file)
     return_value(1) = compilation_edge(file_name, &
          implicit=objects_of_component(component_data))
 
-    do i=1, size(component_data%files)
-       file_name = extract_file_name_from_path(component_data%files(i))
+    do i=1, component_data%files()
+       file_name = extract_file_name_from_path(component_data%file_at(i))
        return_value(i+1) = compilation_edge(file_name)
     end do
   end function
@@ -178,8 +178,8 @@ contains
     ! "Some" + main file size + 1 for whitespace. "Some" is reserved for
     ! the rest of the build edge
     return_value = 256 + len(component_data%main_file) + 1
-    do i = 1, size(component_data%files)
-        return_value = return_value + len(trim(to_object_path(component_data%files(i)))) + 1
+    do i = 1, component_data%files()
+        return_value = return_value + len(trim(to_object_path(component_data%file_at(i)))) + 1
     end do
   end function
 
@@ -207,13 +207,13 @@ contains
     character(len=:), allocatable :: return_value
     integer :: i
     return_value = ''
-    do i=1, size(component_data%files)
+    do i=1, component_data%files()
        ! Probably not a stellar idea to allocate the return value from
        ! start all over again in each loop (assuming Fortran is not
        ! smart enough to optimize this).
        ! But it is simple and gets the job done (well enough)
        return_value = return_value // ' ' // &
-            to_object_path(component_data%files(i))
+            to_object_path(component_data%file_at(i))
     end do
   end function
 

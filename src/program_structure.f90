@@ -6,9 +6,14 @@ module program_structure
   private
 
   type, public :: ComponentData
-     character(len=:), allocatable :: name
-     character(len=:), allocatable :: main_file
-     character(len=:), allocatable :: files(:)
+     private
+     character(len=:), allocatable, public :: name
+     character(len=:), allocatable, public :: main_file
+     integer :: file_count
+     character(len=:), allocatable :: target_directory
+  contains
+    procedure :: files
+    procedure :: file_at
   end type
 
   public :: analyze_needed_components
@@ -47,9 +52,9 @@ contains
 
     id = component_id(counter)
 
-    return_value = ComponentData(id, &
-         component_main_file(target_directory, id), &
-         files_for_a_component(target_directory, id, file_count))
+    return_value = ComponentData( &
+        id, component_main_file(target_directory, id), file_count, &
+        target_directory)
   end function
 
   function component_main_file(target_directory, id) result(return_value)
@@ -59,20 +64,21 @@ contains
     return_value = target_directory // '/' // id // '_main.f90'
   end function
 
-  function files_for_a_component(target_directory, id, file_count) &
-       result(return_value)
-    character(len=:), allocatable :: return_value(:)
-    character(len=*), intent(in) :: target_directory
-    character(len=*), intent(in) :: id
-    integer, intent(in) :: file_count
-    integer :: i
-    character(len=2056) :: path
+  function files(this) result(return_value)
+    class(ComponentData) :: this
+    integer :: return_value
+    return_value = this%file_count
+  end function
 
-    allocate(character(len=2056) :: return_value(file_count))
-    do i=1, file_count
-       write(path, "(A, I0, A)") target_directory // '/' // id // '_', i, '.f90'
-       return_value(i) = trim(path)
-    end do
+  function file_at(this, counter) result(return_value)
+    class(ComponentData) :: this
+    integer, intent(in) :: counter
+    character(len=128) :: buffer
+    character(len=:), allocatable :: return_value
+    ! This would be a good place to assert that counter < this%file_count
+    write(buffer, "(A, I0, A)") this%target_directory // '/' // this%name // &
+         '_', counter, '.f90'
+    return_value = trim(buffer)
   end function
 
   function component_id(counter) result(return_value)

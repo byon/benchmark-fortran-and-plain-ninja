@@ -58,8 +58,8 @@ contains
     character(len=:), allocatable :: name
 
     return_value = .false.
-    do i = 1, size(this%component_data%files)
-       name = module_name_from_path(this%component_data%files(i))
+    do i = 1, this%component_data%files()
+       name = module_name_from_path(this%component_data%file_at(i))
        if (.not. output%write_line('use ' // name)) return
     end do
     return_value = .true.
@@ -71,8 +71,8 @@ contains
     integer :: i
 
     return_value = .false.
-    do i = 1, size(this%component_data%files)
-       if (.not. this%generate_file(this%component_data%files(i))) return
+    do i = 1, this%component_data%files()
+       if (.not. this%generate_file(this%component_data%file_at(i))) return
     end do
     return_value = .true.
   end function
@@ -85,8 +85,8 @@ contains
     integer :: i
 
     return_value = .false.
-    do i = 1, size(this%component_data%files)
-       name = module_name_from_path(this%component_data%files(i))
+    do i = 1, this%component_data%files()
+       name = module_name_from_path(this%component_data%file_at(i))
        if (.not. output%write_line('call call_' // name // '()')) return
     end do
     return_value = .true.
