@@ -155,9 +155,12 @@ contains
     type(ComponentData) :: component_data
     character(len=:), allocatable :: return_value(:)
     character(len=:), allocatable :: file_name
-    integer :: i
+    integer :: i, result_size
 
-    allocate(character(len=2056):: return_value(size(component_data%files) + 1))
+    result_size = calculate_compilation_edge_size_for_component(component_data)
+    allocate(character(len=result_size) :: &
+         return_value(size(component_data%files) + 1))
+
     file_name = extract_file_name_from_path(component_data%main_file)
     return_value(1) = compilation_edge(file_name, &
          implicit=objects_of_component(component_data))
@@ -165,6 +168,18 @@ contains
     do i=1, size(component_data%files)
        file_name = extract_file_name_from_path(component_data%files(i))
        return_value(i+1) = compilation_edge(file_name)
+    end do
+  end function
+
+  function calculate_compilation_edge_size_for_component(component_data) &
+      result(return_value)
+    type(ComponentData) :: component_data
+    integer :: i, return_value
+    ! "Some" + main file size + 1 for whitespace. "Some" is reserved for
+    ! the rest of the build edge
+    return_value = 256 + len(component_data%main_file) + 1
+    do i = 1, size(component_data%files)
+        return_value = return_value + len(trim(to_object_path(component_data%files(i)))) + 1
     end do
   end function
 
