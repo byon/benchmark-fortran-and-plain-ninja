@@ -34,8 +34,13 @@ build $output_directory/generate.exe : flink $output_directory/generate.obj $out
 
 build test: CUSTOM_COMMAND all PHONY
     # It is just silly to use hard coded path ...but this is a throwaway experiment
+    COMMAND = ruby c:\Users\byon\bin\cucumber -qc --tags ~@wip --tags ~@performance
+    description = Executing feature tests
+
+build performance_test: CUSTOM_COMMAND all PHONY
+    # It is just silly to use hard coded path ...but this is a throwaway experiment
     COMMAND = ruby c:\Users\byon\bin\cucumber -qc --tags ~@wip
-    description = executing feature tests
+    description = Executing all feature tests
 
 build all: phony $output_directory/generate.exe
 

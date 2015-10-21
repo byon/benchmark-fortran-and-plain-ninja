@@ -1,3 +1,4 @@
+@performance
 Feature: performance
 
   Scenario Outline: ensuring that larger configurations work
