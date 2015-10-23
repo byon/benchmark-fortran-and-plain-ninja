@@ -68,7 +68,12 @@ contains
     class(Program) :: this
     type(File), intent(in) :: output
     logical :: return_value
-    if (.not. output%write_line('use ' // this%components(1)%name)) return
+    integer :: i
+    return_value = .false.
+
+    do i = 1, size(this%components)
+       if (.not. output%write_line('use ' // this%components(i)%name)) return
+    end do
     return_value = .true.
   end function
 
@@ -76,7 +81,16 @@ contains
     class(Program) :: this
     type(File), intent(in) :: output
     logical :: return_value
-    if (.not. output%write_line('call call_' // this%components(1)%name // '()')) return
+    integer :: i
+    character(:), allocatable :: call_line
+
+    return_value = .false.
+
+    do i = 1, size(this%components)
+       call_line = 'call call_' // this%components(i)%name // '()'
+       if (.not. output%write_line(call_line)) return
+    end do
+
     return_value = .true.
   end function
 

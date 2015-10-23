@@ -117,6 +117,10 @@ Then(/^output contains print\-line from "([^"]*)"$/) do |expected|
   assert_match(/#{expected}/, output_from_generated_exe)
 end
 
+Given(/^count of components is (\d+)$/) do |count|
+  set_component_count_to(count)
+end
+
 Given(/^count of files in component is (\d+)$/) do |count|
   set_file_count_to(count)
 end
@@ -127,6 +131,10 @@ end
 
 Then(/^component should have (\d+) files generated$/) do |count|
   assert_equal count.to_i, generated_files_in_component?('A').size
+end
+
+Then(/^there should be (\d+) components$/) do |count|
+  assert_equal count.to_i, generated_components?().size
 end
 
 Then(/^"([^"]*)" should contain module "([^"]*)"$/) do |path, expected|

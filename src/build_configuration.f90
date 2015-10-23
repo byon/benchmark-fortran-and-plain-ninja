@@ -18,7 +18,6 @@ module build_configuration
      procedure, private :: dependencies_of_executable
      procedure, private :: link_edges_for_components
      procedure, private :: component_main_objects
-     procedure, private :: objects_of_components
   end type
 
   interface BuildConfiguration
@@ -147,14 +146,26 @@ contains
   function component_main_objects(this) result (return_value)
     class(BuildConfiguration) :: this
     character(len=:), allocatable :: return_value
-    return_value = to_object_path(this%components(1)%main_file)
+    integer :: i
+    return_value = ' '
+    do i = 1, size(this%components)
+       return_value = return_value // ' ' // &
+            to_object_path(this%components(i)%main_file)
+    end do
   end function
 
   function compilation_edges_for_components(this, output) result (return_value)
     class(BuildConfiguration) :: this
     type(File), intent(in) :: output
     logical :: return_value
-    return_value = compilation_edges_for_component(output, this%components(1))
+    integer :: i
+
+    return_value = .false.
+    do i = 1, size(this%components)
+       if (.not. compilation_edges_for_component( &
+            output, this%components(i))) return
+    end do
+    return_value = .true.
   end function
 
   function compilation_edges_for_component(output, component_data) &
@@ -183,7 +194,15 @@ contains
     class(BuildConfiguration) :: this
     type(File), intent(in) :: output
     logical :: return_value
-    return_value = link_edges_for_component(output, this%components(1))
+    integer :: i
+
+    return_value = .false.
+
+    do i = 1, size(this%components)
+       if (.not. link_edges_for_component(output, this%components(i))) return
+    end do
+
+    return_value = .true.
   end function
 
   function link_edges_for_component(output, component_data) &
@@ -206,19 +225,20 @@ contains
   function component_libraries(this) result (return_value)
     class(BuildConfiguration) :: this
     character(len=:), allocatable :: return_value
-    return_value = component_library(this%components(1))
+    integer :: i
+
+    return_value = ''
+
+    do i = 1, size(this%components)
+       return_value = return_value // ' ' // &
+            component_library(this%components(i))
+    end do
   end function
 
   function component_library(component_data) result (return_value)
     class(ComponentData) :: component_data
     character(len=:), allocatable :: return_value
     return_value = component_library_path(component_data%name)
-  end function
-
-  function objects_of_components(this) result (return_value)
-    class(BuildConfiguration) :: this
-    character(len=:), allocatable :: return_value
-    return_value = all_objects_of_component(this%components(1))
   end function
 
   function all_objects_of_component(component_data) result (return_value)

@@ -36,3 +36,14 @@ Feature: Configuring generation size
     |      1 |
     |      2 |
     |     10 |
+
+  Scenario Outline: configuring count of files in a component
+    Given any valid configuration
+    And count of components is <number>
+    When generated files are built
+    Then there should be <number> components
+
+    Examples:
+    | number |
+    |      1 |
+    |      2 |

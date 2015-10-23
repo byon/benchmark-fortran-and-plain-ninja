@@ -28,6 +28,10 @@ module Configuration
     @generated_rows = nil
   end
 
+  def set_component_count_to(count)
+    @generated_components = count
+  end
+
   def set_file_count_to(count)
     @generated_files = count
   end

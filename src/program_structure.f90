@@ -36,11 +36,15 @@ contains
   subroutine analyze_needed_components(the_options, return_value)
     type(Options), intent(in) :: the_options
     type(ComponentData), allocatable, intent(out) :: return_value(:)
-    allocate(return_value(1))
-    ! Note: the main file of a component is included in the file count
-    !       -> always reduce the file count by 1
-    return_value = [new_component(the_options%target_directory, 0, &
-         the_options%file_count-1)]
+    integer :: i
+    allocate(return_value(the_options%component_count))
+
+    do i = 1, the_options%component_count
+       ! Note: the main file of a component is included in the file count
+       !       -> always reduce the file count by 1
+       return_value(i) = new_component( &
+            the_options%target_directory, i-1, the_options%file_count-1)
+    end do
   end subroutine
 
   function new_component(target_directory, counter, file_count) &

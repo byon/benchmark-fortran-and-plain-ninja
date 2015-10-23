@@ -1,4 +1,8 @@
 module GeneratedFiles
+  def generated_components?
+    Dir.glob('generated/build/debug/*.lib')
+  end
+
   def generated_source_files?
     Dir.glob('generated/*.f90')
   end
