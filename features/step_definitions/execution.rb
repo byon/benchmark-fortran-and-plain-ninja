@@ -40,6 +40,7 @@ module Execution
 
   def generation_command
     result = ["build/debug/generate.exe"]
+    result << "#{@generated_components}" if @generated_components
     result << "#{@generated_files}" if @generated_files
     result << "#{@generated_rows}" if @generated_rows
     return result

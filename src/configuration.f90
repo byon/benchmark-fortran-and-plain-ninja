@@ -7,6 +7,7 @@ module configuration
   type, public :: Options
      character(len=:), allocatable :: target_directory
      character(len=:), allocatable :: program_name
+     integer :: component_count
      integer :: file_count
      integer :: row_count
    contains
@@ -26,8 +27,9 @@ contains
     type(Options) :: new_configuration
     character(len=*) :: target_directory
     character(len=*) :: program_name
-    new_configuration%file_count = get_integer_argument_at(1)
-    new_configuration%row_count = get_integer_argument_at(2)
+    new_configuration%component_count = get_integer_argument_at(1)
+    new_configuration%file_count = get_integer_argument_at(2)
+    new_configuration%row_count = get_integer_argument_at(3)
     new_configuration%target_directory = target_directory
     new_configuration%program_name = program_name
   end function
@@ -70,6 +72,7 @@ contains
     logical :: return_value
 
     return_value = .false.
+    if (.not. validate_numeric(this%component_count, 'component count')) return
     if (.not. validate_numeric(this%file_count, 'file count')) return
     if (.not. validate_numeric(this%row_count, 'row count')) return
 

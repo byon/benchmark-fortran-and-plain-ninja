@@ -1,3 +1,7 @@
+Given(/^a missing component count$/) do
+  create_configuration_with_missing_component_count
+end
+
 Given(/^a missing file count$/) do
   create_configuration_with_missing_file_count
 end

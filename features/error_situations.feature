@@ -6,6 +6,7 @@ Feature: Error situations
     Then generation failed because of "<error>"
 
     Examples:
-    | configuration | error              |
-    | file count    | missing file count |
-    | row count     | missing row count  |
+    | configuration   | error                   |
+    | component count | missing component count |
+    | file count      | missing file count      |
+    | row count       | missing row count       |
