@@ -12,9 +12,11 @@ module build_configuration
     type(ComponentData), allocatable :: components(:)
    contains
      procedure :: generate
-     procedure, private :: all_objects
      procedure, private :: build_edges
      procedure, private :: compilation_edges_for_components
+     procedure, private :: component_libraries
+     procedure, private :: dependencies_of_executable
+     procedure, private :: link_edges_for_components
      procedure, private :: component_main_objects
      procedure, private :: objects_of_components
   end type
@@ -94,6 +96,7 @@ contains
 
     return_value = .false.
     if (.not. compilation_rule(output)) return
+    if (.not. static_library_rule(output)) return
     return_value = linking_rule(output)
   end function
 
@@ -103,6 +106,15 @@ contains
     return_value = .false.
     if (.not. output%write_line('rule fc')) return
     if (.not. output%write_line('  command = ifort $fflags $in /object:$out')) return
+    return_value = output%write_line('')
+  end function
+
+  function static_library_rule(output) result(return_value)
+    type(File), intent(in) :: output
+    logical :: return_value
+    return_value = .false.
+    if (.not. output%write_line('rule flib')) return
+    if (.not. output%write_line('  command = lib /OUT:$out /NOLOGO $in')) return
     return_value = output%write_line('')
   end function
 
@@ -126,9 +138,10 @@ contains
          compilation_edge('main.f90', &
          implicit=this%component_main_objects()))) return
     if (.not. this%compilation_edges_for_components(output)) return
+    if (.not. this%link_edges_for_components(output)) return
     return_value = output%write_line( &
          linking_edge('$output_directory/generated.exe', &
-         this%all_objects()))
+         this%dependencies_of_executable()))
   end function
 
   function component_main_objects(this) result (return_value)
@@ -166,10 +179,40 @@ contains
     return_value = .true.
   end function
 
-  function all_objects(this) result (return_value)
+  function link_edges_for_components(this, output) result (return_value)
+    class(BuildConfiguration) :: this
+    type(File), intent(in) :: output
+    logical :: return_value
+    return_value = link_edges_for_component(output, this%components(1))
+  end function
+
+  function link_edges_for_component(output, component_data) &
+       result (return_value)
+    type(File), intent(in) :: output
+    type(ComponentData), intent(in) :: component_data
+    logical :: return_value
+
+    return_value = output%write_line( &
+         static_link_edge(component_data%name, &
+         all_objects_of_component(component_data)))
+  end function
+
+  function dependencies_of_executable(this) result (return_value)
     class(BuildConfiguration) :: this
     character(len=:), allocatable :: return_value
-    return_value = '$output_directory/main.obj ' // this%objects_of_components()
+    return_value = '$output_directory/main.obj ' // this%component_libraries()
+  end function
+
+  function component_libraries(this) result (return_value)
+    class(BuildConfiguration) :: this
+    character(len=:), allocatable :: return_value
+    return_value = component_library(this%components(1))
+  end function
+
+  function component_library(component_data) result (return_value)
+    class(ComponentData) :: component_data
+    character(len=:), allocatable :: return_value
+    return_value = component_library_path(component_data%name)
   end function
 
   function objects_of_components(this) result (return_value)
@@ -213,6 +256,20 @@ contains
          compilation, implicit)
   end function
 
+  function static_link_edge(module_name, objects) result (return_value)
+    character(len=*), intent(in)  :: module_name
+    character(len=*), intent(in)  :: objects
+    character(len=:), allocatable :: return_value
+    return_value = build_edge( &
+         component_library_path(module_name), 'flib', objects)
+  end function
+
+  function component_library_path(module_name) result (return_value)
+    character(len=*), intent(in)  :: module_name
+    character(len=:), allocatable :: return_value
+    return_value = in_output_directory(module_name // '.lib')
+  end function
+
   function linking_edge(file, dependencies) result (return_value)
     character(len=*), intent(in)  :: file
     character(len=*), intent(in)  :: dependencies
@@ -238,7 +295,13 @@ contains
     character(len=:), allocatable :: return_value
     character(len=:), allocatable :: object_file
     object_file = replace_file_extension(extract_file_name_from_path(file))
-    return_value = '$output_directory/' // object_file
+    return_value = in_output_directory(object_file)
+  end function
+
+  function in_output_directory(file) result (return_value)
+    character(len=*), intent(in) :: file
+    character(len=:), allocatable :: return_value
+    return_value = '$output_directory/' // file
   end function
 
   function replace_file_extension(file) result (return_value)

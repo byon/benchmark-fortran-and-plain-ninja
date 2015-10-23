@@ -81,14 +81,25 @@ Then(/^build configuration rule "([^"]*)" defines fortran linking$/) do |rule|
   assert_equal(command, 'link /OUT:$out $ldflags $in')
 end
 
+Then(/^build configuration rule "([^"]*)" defines rule for static library$/) do |rule|
+  command = build_rules(rule).get_declaration('command')
+  assert_equal(command, 'lib /OUT:$out /NOLOGO $in')
+end
+
+Then(/^build configuration is set to create static library "([^"]*)"$/) do |target|
+  edge = build_edges_by_target(target)
+  assert_equal('flib', edge.rule)
+  assert_equal([target], edge.outputs)
+end
+
 Then(/^build configuration is set to link "([^"]*)"$/) do |target|
   edge = build_edges_by_target(target)
   assert_equal('flink', edge.rule)
   assert_equal([target], edge.outputs)
 end
 
-Then(/^build configuration will link object "([^"]*)"$/) do |object_file|
-  edge = build_edges_by_target('$output_directory/generated.exe')
+Then(/^"([^"]*)" will link "([^"]*)"$/) do |target, object_file|
+  edge = build_edges_by_target(target)
   assert_includes(edge.explicit_dependencies, object_file)
 end
 

@@ -2,6 +2,7 @@ Feature: Generating build configuration
 
   Background:
     Given any valid configuration
+    And count of files in component is 2
     When files are generated
 
   Scenario: Generating main fortran file
@@ -74,9 +75,19 @@ Feature: Generating build configuration
   Scenario: Build configuration defines linking rule
     Then build configuration rule "flink" defines fortran linking
 
+  Scenario: Build configuration defines static library rule
+    Then build configuration rule "flib" defines rule for static library
+
+  Scenario: Build configuration is set to build component library
+    Then build configuration is set to create static library "$output_directory/A.lib"
+
+  Scenario: Linking component library will include the object files
+    Then "$output_directory/A.lib" will link "$output_directory/A_main.obj"
+    And "$output_directory/A.lib" will link "$output_directory/A_1.obj"
+
   Scenario: Build configuration is set to build executable
     Then build configuration is set to link "$output_directory/generated.exe"
 
   Scenario: Linking executable will include the object files
-    Then build configuration will link object "$output_directory/main.obj"
-    And build configuration will link object "$output_directory/A_main.obj"
+    Then "$output_directory/generated.exe" will link "$output_directory/main.obj"
+    And "$output_directory/generated.exe" will link "$output_directory/A.lib"

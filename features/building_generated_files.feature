@@ -10,6 +10,9 @@ Feature: Building generated files
   Scenario: Building component object files
     Then there is a file "generated/build/debug/A_main.obj"
 
+  Scenario: Building component library file
+    Then there is a file "generated/build/debug/A.lib"
+
   Scenario: Building executable
     Then there is a file "generated/build/debug/generated.exe"
 
