@@ -1,0 +1,10 @@
+This repository contains an experiment made to benchmark build speed with Ninja build tool and Fortran. More specifically the experiment used Intel Fortran compiler.
+
+I knew that Ninja could be used to compile Fortran. And I knew that Ninja is very fast in handling dependencies. However, the known Ninja generators do not support either Ninja+Fortran at all (like CMake), or do not support Intel Fortran compiler specifically (like Meson, at least on Windows).
+
+So, I this kind of one-off hacky experiment, which generates a large Fortran code base and a ninja build file. The goal was not only to measure the speed, but also to learn things. In order to get practice in Fortran itself, I wrote the generator tool in Fortran. And in order to get practice with Ruby and Cucumber, I wrote high level tests with those.
+
+Here's some simple performance figures that I did with ~ 2.2 million lines of Fortran code (22 static libraries, linked together, and each containing 100 source files with ~ 1000 lines of code):
+| Full build                    | 6 minutes 10 seconds |
+| No-op build                   | 60 milliseconds      |
+| Build after changing one file | 4.7 seconds          |
